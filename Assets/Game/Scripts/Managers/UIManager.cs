@@ -4,18 +4,13 @@ using Screens;
 
 namespace Managers
 {
+    [DefaultExecutionOrder(10)]
     public class UIManager : Singleton<UIManager>
     {
         [SerializeField] private List<BaseScreen> screensPrefab = new List<BaseScreen>();
         [SerializeField] private List<BaseScreen> screens = new List<BaseScreen>();
 
         [SerializeField] private Camera camera;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            SetupScreen();
-        }
 
         public void OpenScreen<T>() where T : BaseScreen
         {
@@ -58,7 +53,7 @@ namespace Managers
             return null;
         }
         
-        private void SetupScreen()
+        public void Init()
         {
             for (int i = 0; i < screensPrefab.Count; i++)
             {

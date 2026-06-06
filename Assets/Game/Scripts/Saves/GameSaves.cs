@@ -5,10 +5,6 @@ namespace DataUtils
 {
     public class GameSaves
     {
-        public event Action ChangedCurrencyAction;
-        
-        private const string CoinKey = "Coin_Key";
-        
         private static GameSaves _instance;
 
         public static GameSaves Instance
@@ -23,28 +19,6 @@ namespace DataUtils
                 return _instance;
             }
         }
-
-        public void AddCoin(int coin)
-        {
-            var coins = ReadData<int>(CoinKey);
-
-            coins += coin;
-
-            WriteData(CoinKey, coins);
-            ChangedCurrencyAction?.Invoke();
-        }
-        
-        public void RemoveCoin(int coin)
-        {
-            var coins = ReadData<int>(CoinKey);
-
-            coins -= coin;
-            
-            WriteData(CoinKey,coins);
-            ChangedCurrencyAction?.Invoke();
-        }
-        
-        public int GetCoin() => ReadData<int>(CoinKey);
 
         public void WriteData<T>(string key, T data)
         {  
