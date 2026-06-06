@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Managers
+namespace Core
 {
     public class DIContainer 
     {
