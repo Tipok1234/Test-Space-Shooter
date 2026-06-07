@@ -43,6 +43,12 @@ namespace Controllers
             HandleShoot();
         }
         
+        public void ResetShipController()
+        {
+            _shipView.OnHitAsteroid -= OnHitAsteroid;
+            _shipView.OnHitAsteroid += OnHitAsteroid;
+        }
+        
         public void Deactivate()
         {
             _shipView.Deactivate();

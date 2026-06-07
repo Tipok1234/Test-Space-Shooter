@@ -16,6 +16,7 @@ namespace Controllers
         public event Action<BulletView, AsteroidView> OnBulletHitAsteroid;
 
         private const float BulletSpeed = 10f;
+        
         private float _maxY;
 
         public BulletController(BulletPool bulletPool)
@@ -34,6 +35,15 @@ namespace Controllers
             var bullet = _bulletPool.Get(spawnPosition);
             bullet.OnHitAsteroid += OnHitAsteroid;
             _activeBullets.Add(bullet, true);
+        }
+        
+        public void ResetBullets()
+        {
+            foreach (var bullet in _activeBullets.Keys.ToList())
+            {
+                ReturnBullet(bullet);
+            }
+            _activeBullets.Clear();
         }
 
         private void MoveBullets()

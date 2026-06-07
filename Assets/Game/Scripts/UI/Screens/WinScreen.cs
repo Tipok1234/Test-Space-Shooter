@@ -12,30 +12,18 @@ namespace Screens
         [SerializeField] private Button nextButton;
 
         private Action _onMenu;
-        private Action _onNext;
+        private Action _onNextLevel;
 
-        public override void CloseScreen()
-        {
-            Debug.Log("WinScreen CloseScreen called");
-            base.CloseScreen();
-        }
-
-        public override void OpenScreen()
-        {
-            Debug.Log("WinScreen OPENSCREEN called");
-            base.OpenScreen();
-        }
-
-        public void Init(Action onMenu, Action onNext)
+        public void Init(Action onMenu, Action onNextLevel)
         {
             _onMenu = onMenu;
-            _onNext = onNext;
+            _onNextLevel = onNextLevel;
 
             menuButton.onClick.RemoveAllListeners();
             nextButton.onClick.RemoveAllListeners();
             
             menuButton.onClick.AddListener(OnMenu);
-            nextButton.onClick.AddListener(OnNext);
+            nextButton.onClick.AddListener(OnNextLevel);
         }
 
         public void UpdateView(int collected, int total)
@@ -48,15 +36,15 @@ namespace Screens
             _onMenu?.Invoke();
         }
 
-        private void OnNext()
+        private void OnNextLevel()
         {
-            _onNext?.Invoke();
+            _onNextLevel?.Invoke();
         }
 
         private void OnDestroy()
         {
             menuButton.onClick.RemoveListener(OnMenu);
-            nextButton.onClick.RemoveListener(OnNext);
+            nextButton.onClick.RemoveListener(OnNextLevel);
         }
     }
 }

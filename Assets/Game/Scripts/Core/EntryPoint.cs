@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Screens;
 using UnityEngine;
 using Datas;
@@ -6,7 +5,6 @@ using DataUtils;
 using Managers;
 using Models;
 using Controllers;
-using WorldViews;
 
 namespace Core
 {
@@ -75,17 +73,27 @@ namespace Core
                 OnPlay
             ));
             
+            var callbacks = new GameScreenCallbacks
+            {
+                OnMenu = OnMenu,
+                OnWin = OnWin,
+                OnNext = OnNext
+            };
+            
+            var screens = new GameScreens
+            {
+                GameScreen = UIManager.Instance.GetScreen<GameScreen>(),
+                LoseScreen = UIManager.Instance.GetScreen<LoseScreen>(),
+                WinScreen = UIManager.Instance.GetScreen<WinScreen>()
+            };
+            
             _container.Register(new GameScreenController(
-                gameScreen,
-                loseScreen,
-                winScreen,
+                screens,
                 _container.Resolve<ShipModel>(),
                 prefabConfig,
                 _container.Resolve<Ticker>(),
                 asteroidsParent,
-                OnMenu,
-                OnWin,
-                OnNext
+                callbacks
             ));
         }
         
@@ -93,7 +101,7 @@ namespace Core
         {
             var levelModel = _container.Resolve<LevelModel>();
             levelModel.CompleteLevel(levelId);
-            levelModel.RegenereteSeed(levelId); 
+            levelModel.RegenerateSeed(levelId); 
         }
         
         private void OnMenu()

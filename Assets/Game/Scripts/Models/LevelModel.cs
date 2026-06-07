@@ -14,7 +14,7 @@ namespace Models
         private readonly LevelVariablesGenerator _generator;
         private readonly GameSaves _gameSaves;
 
-        private const string SaveKeyPrefix = "LevelState_";
+        private const string SaveKeyPrefix = "Level_State_Key";
 
         public LevelModel(List<LevelData> levelsData, GameSaves gameSaves, LevelVariablesGenerator generator)
         {
@@ -86,7 +86,7 @@ namespace Models
             UnlockNextLevel(levelId);
         }
 
-        public void RegenereteSeed(int levelId)
+        public void RegenerateSeed(int levelId)
         {
             var state = GetState(levelId);
             if (state == null) return;

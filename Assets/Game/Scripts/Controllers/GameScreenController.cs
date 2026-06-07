@@ -11,61 +11,71 @@ namespace Controllers
 {
     public class GameScreenController
     {
-        private readonly Action _onMenu;
-        private readonly Action<int> _onWin;
-        private readonly Action<int> _onNext;
-        
-        private readonly GameScreen _gameScreen;
-        private readonly LoseScreen _loseScreen;
-        private readonly WinScreen _winScreen;
+        private readonly GameScreens _screens;
+        private readonly GameScreenCallbacks _callbacks;
         private readonly ShipModel _shipModel;
         private readonly PrefabConfig _prefabConfig;
         private readonly Ticker _ticker;
+        private readonly Transform _asteroidsParent;
 
         private ShipView _shipView;
         private ShipController _shipController;
         private BulletController _bulletController;
         private AsteroidController _asteroidController;
         private LevelVariables _currentLevelVariables;
-        private readonly Transform _asteroidsParent;
-
+        
         private int _currentLevelId;
         private int _currentScore;
 
-        public GameScreenController(GameScreen gameScreen, LoseScreen loseScreen, WinScreen winScreen, 
-            ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, Transform asteroidsParent,Action onMenu,Action<int> onWin, Action<int> onNext)
+        private bool isGameOver;
+        
+        public GameScreenController(GameScreens screens, ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, Transform asteroidsParent, GameScreenCallbacks callbacks)
         {
-            _gameScreen = gameScreen;
-            _loseScreen = loseScreen;
-            _winScreen = winScreen;
+            _screens = screens;
             _shipModel = shipModel;
             _prefabConfig = prefabConfig;
             _ticker = ticker;
             _asteroidsParent = asteroidsParent;
-            _onMenu = onMenu;
-            _onWin = onWin;
-            _onNext = onNext;
+            _callbacks = callbacks;
         }
 
         public void Show(int levelId, LevelVariables levelVariables)
         {
+            isGameOver = false;
             _currentLevelId = levelId;
             _currentLevelVariables = levelVariables;
             _currentScore = 0;
-            
-            _gameScreen.OpenScreen();
-            _gameScreen.UpdateScore(0);
-            _gameScreen.UpdateHealth(_shipModel.MaxLives);
-            
+
+            _screens.GameScreen.OpenScreen();
+            _screens.GameScreen.UpdateScore(0);
+            _screens.GameScreen.UpdateHealth(_shipModel.MaxLives);
+
+            if (_shipView == null)
+            {
+                Setup(levelVariables);
+            }
+            else
+            {
+                ResetControllers(levelVariables);
+            }
+        }
+
+        private void Setup(LevelVariables levelVariables)
+        {
             SpawnShip();
             SpawnBullets();
             SpawnAsteroids(levelVariables);
             InitShipController();
         }
 
-        public void Hide()
+        private void ResetControllers(LevelVariables levelVariables)
         {
-            _gameScreen.CloseScreen();
+            _shipView.ResetShip(_shipModel.SpawnPosition);
+            _shipController.ResetShipController();
+            _ticker.Register(_shipController);
+            _bulletController.ResetBullets();
+            _asteroidController.ResetAsteroids(levelVariables);
+            _asteroidController.Activate(_bulletController);
         }
 
         private void SpawnShip()
@@ -105,32 +115,62 @@ namespace Controllers
         private void OnScoreChanged(int score)
         {
             _currentScore = score;
-            _gameScreen.UpdateScore(score);
+            _screens.GameScreen.UpdateScore(score);
         }
 
         private void OnWin()
         {
-            _shipController.Deactivate();
-            _onWin?.Invoke(_currentLevelId);
+            if (isGameOver)
+                return;
     
-            _winScreen.Init(OnMenu, OnNext);
-            _winScreen.UpdateView(_currentScore / 10, _asteroidController.TotalAsteroids);
-            _winScreen.OpenScreen();
+            _shipController.Deactivate();
+            _screens.WinScreen.Init(OnMenu, OnNextLevel);
+            _screens.WinScreen.UpdateView(_currentScore / 10, _asteroidController.TotalAsteroids);
+            _screens.WinScreen.OpenScreen();
+            _callbacks.OnWin?.Invoke(_currentLevelId);
         }
         
         private void OnMenu()
         {
-            _winScreen.CloseScreen();
-            _gameScreen.CloseScreen();
-            _onMenu?.Invoke();
+            Cleanup();
+            _shipModel.ResetShipModel();
+            _screens.WinScreen.CloseScreen();
+            _screens.GameScreen.CloseScreen();
+            _callbacks.OnMenu?.Invoke();
         }
 
-        private void OnNext()
+        private void OnNextLevel()
         {
             Cleanup();
             _shipModel.ResetShipModel();
-            _winScreen.CloseScreen();
-            _onNext?.Invoke(_currentLevelId);
+            _screens.WinScreen.CloseScreen();
+            _callbacks.OnNext?.Invoke(_currentLevelId);
+        }
+        
+        private void OnAsteroidHit(AsteroidView asteroidView)
+        {
+            _asteroidController.DestroyAsteroid(asteroidView);
+        }
+        
+        private void OnHealthChanged(int health)
+        {
+            _screens.GameScreen.UpdateHealth(health);
+        }
+
+        private void OnLose()
+        {
+            isGameOver = true;
+            _shipController.Deactivate();
+            _screens.LoseScreen.Init(OnRestart);
+            _screens.LoseScreen.OpenScreen();
+            _ticker.Register(_screens.LoseScreen);
+        }
+        
+        private void OnRestart()
+        {
+            Cleanup();
+            _shipModel.ResetShipModel();
+            Show(_currentLevelId, _currentLevelVariables);
         }
 
         private void InitShipController()
@@ -143,39 +183,11 @@ namespace Controllers
             _ticker.Register(_shipController);
         }
         
-        private void OnAsteroidHit(AsteroidView asteroidView)
-        {
-            _asteroidController.DestroyAsteroid(asteroidView);
-        }
-        
-        private void OnHealthChanged(int health)
-        {
-            _gameScreen.UpdateHealth(health);
-        }
-
-        private void OnLose()
-        {
-            _shipController.Deactivate();
-            _loseScreen.Init(OnRestart);
-            _loseScreen.OpenScreen();
-            _ticker.Register(_loseScreen);
-        }
-        
         private void Cleanup()
         {
-            _ticker.Unregister(_bulletController);
-            _ticker.Unregister(_asteroidController);
-            _ticker.Unregister(_loseScreen);
-
+            _ticker.Unregister(_screens.LoseScreen);
+            _screens.LoseScreen.CloseScreen();
             _asteroidController.Deactivate();
-            _loseScreen.CloseScreen();
-        }
-
-        private void OnRestart()
-        {
-            Cleanup();
-            _shipModel.ResetShipModel();
-            Show(_currentLevelId, _currentLevelVariables);
         }
     }
 }

@@ -36,7 +36,6 @@ namespace Controllers
 
         private void OnLevelClick(int levelId)
         {
-            Debug.Log($"Level {levelId} clicked");
             _onLevelClick?.Invoke(levelId);
         }
     }
