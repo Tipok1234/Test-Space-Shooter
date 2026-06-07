@@ -30,13 +30,6 @@ namespace Controllers
         {
             _currentLevelId = levelId;
 
-            var state = _levelModel.GetState(levelId);
-
-            if (state.Status == LevelStatusEnum.Completed)
-            {
-                _levelModel.RegenereateSeed(levelId);
-            }
-
             var levelData = _levelModel.GetData(levelId);
             var levelVariables = _levelModel.GetVariables(levelId);
 
@@ -57,9 +50,7 @@ namespace Controllers
             }
 
             _onPlay?.Invoke(_currentLevelId);
-    
-            Debug.Log($"Play level {_currentLevelId}");
-        }
+        }   
 
         private void OnClose()
         {

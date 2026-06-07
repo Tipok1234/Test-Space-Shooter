@@ -75,20 +75,24 @@ namespace Models
         public void CompleteLevel(int levelId)
         {
             var state = GetState(levelId);
-            if (state == null) return;
+            
+            if (state == null)
+                return;
 
             state.Status = LevelStatusEnum.Completed;
+            state.IsReadyForReplay = true;
             SaveState(state);
 
             UnlockNextLevel(levelId);
         }
 
-        public void RegenereateSeed(int levelId)
+        public void RegenereteSeed(int levelId)
         {
             var state = GetState(levelId);
             if (state == null) return;
 
             state.IsSeedGenerated = false;
+            state.IsReadyForReplay = false;
             state.Seed = 0;
 
             SaveState(state);
@@ -100,7 +104,9 @@ namespace Models
             if (nextLevelData == null) return;
 
             var nextState = GetState(nextLevelData.LevelId);
-            if (nextState == null || nextState.Status != LevelStatusEnum.Locked) return;
+            
+            if (nextState == null || nextState.Status != LevelStatusEnum.Locked)
+                return;
 
             nextState.Status = LevelStatusEnum.Unlocked;
             SaveState(nextState);

@@ -12,6 +12,8 @@ namespace Controllers
 {
     public class AsteroidController : ITickable
     {
+        public int TotalAsteroids => _levelVariables.AsteroidCount;
+        
         private readonly AsteroidPool _asteroidPool;
         private readonly LevelVariables _levelVariables;
 
@@ -28,10 +30,13 @@ namespace Controllers
 
         private float _spawnTimer;
         private const float SpawnInterval = 2f;
+        
         private int _asteroidsSpawned;
         private int _asteroidsDestroyed;
-        private bool _isActive;
         private int _score;
+        
+        private bool _isActive;
+        private bool _isWin;
 
         public AsteroidController(AsteroidPool asteroidPool, LevelVariables levelVariables)
         {
@@ -44,6 +49,7 @@ namespace Controllers
         public void Activate(BulletController bulletController)
         {
             _isActive = true;
+            _isWin = false;
             _asteroidsSpawned = 0;
             _asteroidsDestroyed = 0;
             _score = 0;
@@ -95,8 +101,11 @@ namespace Controllers
 
         private void CheckWin()
         {
+            if (_isWin) return;
+    
             if (_asteroidsSpawned >= _levelVariables.AsteroidCount && _activeAsteroids.Count == 0)
             {
+                _isWin = true;
                 OnAllAsteroidsDestroyed?.Invoke();
             }
         }

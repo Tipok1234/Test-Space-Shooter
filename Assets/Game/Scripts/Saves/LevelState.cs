@@ -12,5 +12,6 @@ namespace DataUtils
         public LevelStatusEnum Status;
         
         public bool IsSeedGenerated;
+        public bool IsReadyForReplay;
     }
 }

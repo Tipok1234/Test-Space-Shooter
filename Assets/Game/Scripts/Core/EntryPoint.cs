@@ -61,6 +61,7 @@ namespace Core
             var levelScreen = UIManager.Instance.GetScreen<LevelScreen>();
             var gameScreen = UIManager.Instance.GetScreen<GameScreen>();
             var loseScreen = UIManager.Instance.GetScreen<LoseScreen>();
+            var winScreen = UIManager.Instance.GetScreen<WinScreen>();
 
             _container.Register(new MapScreenController(
                 mapScreen,
@@ -77,11 +78,40 @@ namespace Core
             _container.Register(new GameScreenController(
                 gameScreen,
                 loseScreen,
+                winScreen,
                 _container.Resolve<ShipModel>(),
                 prefabConfig,
                 _container.Resolve<Ticker>(),
-                asteroidsParent
+                asteroidsParent,
+                OnMenu,
+                OnWin,
+                OnNext
             ));
+        }
+        
+        private void OnWin(int levelId)
+        {
+            var levelModel = _container.Resolve<LevelModel>();
+            levelModel.CompleteLevel(levelId);
+            levelModel.RegenereteSeed(levelId); 
+        }
+        
+        private void OnMenu()
+        {
+            _container.Resolve<MapScreenController>().Show();
+        }
+        
+        private void OnNext(int currentLevelId)
+        {
+            var levelModel = _container.Resolve<LevelModel>();
+            var levelsData = levelModel.GetLevelsData();
+    
+            int nextLevelId = (currentLevelId + 1) % levelsData.Count;
+    
+            levelModel.GenerateSeed(nextLevelId);
+            var nextVariables = levelModel.GetVariables(nextLevelId);
+    
+            _container.Resolve<GameScreenController>().Show(nextLevelId, nextVariables);
         }
         
         private void OnPlay(int levelId)

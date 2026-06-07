@@ -5,13 +5,19 @@ using Models;
 using UnityEngine;
 using WorldViews;
 using Datas;
+using System;
 
 namespace Controllers
 {
     public class GameScreenController
     {
+        private readonly Action _onMenu;
+        private readonly Action<int> _onWin;
+        private readonly Action<int> _onNext;
+        
         private readonly GameScreen _gameScreen;
         private readonly LoseScreen _loseScreen;
+        private readonly WinScreen _winScreen;
         private readonly ShipModel _shipModel;
         private readonly PrefabConfig _prefabConfig;
         private readonly Ticker _ticker;
@@ -24,25 +30,33 @@ namespace Controllers
         private readonly Transform _asteroidsParent;
 
         private int _currentLevelId;
+        private int _currentScore;
 
-        public GameScreenController(GameScreen gameScreen, LoseScreen loseScreen, ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, Transform asteroidsParent)
+        public GameScreenController(GameScreen gameScreen, LoseScreen loseScreen, WinScreen winScreen, 
+            ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, Transform asteroidsParent,Action onMenu,Action<int> onWin, Action<int> onNext)
         {
             _gameScreen = gameScreen;
             _loseScreen = loseScreen;
+            _winScreen = winScreen;
             _shipModel = shipModel;
             _prefabConfig = prefabConfig;
             _ticker = ticker;
             _asteroidsParent = asteroidsParent;
+            _onMenu = onMenu;
+            _onWin = onWin;
+            _onNext = onNext;
         }
 
         public void Show(int levelId, LevelVariables levelVariables)
         {
             _currentLevelId = levelId;
             _currentLevelVariables = levelVariables;
+            _currentScore = 0;
             
             _gameScreen.OpenScreen();
             _gameScreen.UpdateScore(0);
             _gameScreen.UpdateHealth(_shipModel.MaxLives);
+            
             SpawnShip();
             SpawnBullets();
             SpawnAsteroids(levelVariables);
@@ -58,7 +72,7 @@ namespace Controllers
         {
             if (_shipView == null)
             {
-                _shipView = Object.Instantiate(_prefabConfig.ShipPrefab, _shipModel.SpawnPosition, Quaternion.identity);
+                _shipView = UnityEngine.Object.Instantiate(_prefabConfig.ShipPrefab, _shipModel.SpawnPosition, Quaternion.identity);
             }
             else
             {
@@ -90,15 +104,33 @@ namespace Controllers
         
         private void OnScoreChanged(int score)
         {
+            _currentScore = score;
             _gameScreen.UpdateScore(score);
         }
 
         private void OnWin()
         {
-            _asteroidController.Deactivate();
-            
-            Debug.LogError("WinGame");
-            //_gameScreen.ShowWin();
+            _shipController.Deactivate();
+            _onWin?.Invoke(_currentLevelId);
+    
+            _winScreen.Init(OnMenu, OnNext);
+            _winScreen.UpdateView(_currentScore / 10, _asteroidController.TotalAsteroids);
+            _winScreen.OpenScreen();
+        }
+        
+        private void OnMenu()
+        {
+            _winScreen.CloseScreen();
+            _gameScreen.CloseScreen();
+            _onMenu?.Invoke();
+        }
+
+        private void OnNext()
+        {
+            Cleanup();
+            _shipModel.ResetShipModel();
+            _winScreen.CloseScreen();
+            _onNext?.Invoke(_currentLevelId);
         }
 
         private void InitShipController()
