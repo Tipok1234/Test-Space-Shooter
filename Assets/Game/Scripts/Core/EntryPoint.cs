@@ -14,9 +14,10 @@ namespace Core
     public class EntryPoint : MonoBehaviour
     {
         [SerializeField] private LevelConfig levelConfig;
-        [SerializeField] private ShipView shipPrefab;
-        [SerializeField] private BulletView bulletPrefab;
+        [SerializeField] private PrefabConfig prefabConfig;
         [SerializeField] private Ticker ticker;
+        
+        [SerializeField] private Transform asteroidsParent;
 
         private DIContainer _container;
 
@@ -59,6 +60,7 @@ namespace Core
             var mapScreen = UIManager.Instance.GetScreen<MapScreen>();
             var levelScreen = UIManager.Instance.GetScreen<LevelScreen>();
             var gameScreen = UIManager.Instance.GetScreen<GameScreen>();
+            var loseScreen = UIManager.Instance.GetScreen<LoseScreen>();
 
             _container.Register(new MapScreenController(
                 mapScreen,
@@ -74,26 +76,21 @@ namespace Core
             
             _container.Register(new GameScreenController(
                 gameScreen,
+                loseScreen,
                 _container.Resolve<ShipModel>(),
-                shipPrefab,
-                bulletPrefab,
-                _container.Resolve<Ticker>()
-            ));
-            
-            _container.Register(new GameScreenController(
-                gameScreen,
-                _container.Resolve<ShipModel>(),
-                shipPrefab,
-                bulletPrefab,
-                _container.Resolve<Ticker>()
+                prefabConfig,
+                _container.Resolve<Ticker>(),
+                asteroidsParent
             ));
         }
         
         private void OnPlay(int levelId)
         {
+            var levelVariables = _container.Resolve<LevelModel>().GetVariables(levelId);
+    
             _container.Resolve<MapScreenController>().Hide();
             _container.Resolve<LevelScreenController>().Hide();
-            _container.Resolve<GameScreenController>().Show(levelId);
+            _container.Resolve<GameScreenController>().Show(levelId, levelVariables);
         }
         
         private void OnLevelClick(int levelId)

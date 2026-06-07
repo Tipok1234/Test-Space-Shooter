@@ -3,11 +3,18 @@ using Models;
 using UnityEngine;
 using WorldViews;
 using UnityEngine.InputSystem;
+using System;
 
 namespace Controllers
 {
     public class ShipController : ITickable
     {
+        public event Action OnDeath;
+        public event Action<int> OnHealthChanged;
+        public event Action<AsteroidView> OnAsteroidHit;
+        
+        public event Action OnDeactivate;
+        
         private readonly ShipModel _shipModel;
         private readonly ShipView _shipView;
         private readonly BulletController _bulletController;
@@ -26,6 +33,7 @@ namespace Controllers
             _shipView = shipView;
             _bulletController = bulletController;
 
+            _shipView.OnHitAsteroid += OnHitAsteroid;
             CalculateBounds();
         }
 
@@ -33,6 +41,24 @@ namespace Controllers
         {
             Move();
             HandleShoot();
+        }
+        
+        public void Deactivate()
+        {
+            _shipView.Deactivate();
+            OnDeactivate?.Invoke();
+        }
+        
+        private void OnHitAsteroid(AsteroidView asteroidView)
+        {
+            OnAsteroidHit?.Invoke(asteroidView);
+            _shipModel.TakeDamage();
+            OnHealthChanged?.Invoke(_shipModel.CurrentLives);
+
+            if (_shipModel.IsDead)
+            {
+                OnDeath?.Invoke();
+            }
         }
         
         private void HandleShoot()
