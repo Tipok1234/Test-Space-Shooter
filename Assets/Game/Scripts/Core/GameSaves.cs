@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace DataUtils
+namespace Core
 {
     public class GameSaves
     {

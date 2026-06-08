@@ -1,12 +1,11 @@
 using System;
 using Enums;
-using UnityEngine;
 
 namespace Managers
 {
     public class GameManager
     {
-        public event Action<GameStateType> GameStateChanged; 
+        public event Action<GameStateType> GameStateChanged;
         
         private GameStateType _gameState;
 

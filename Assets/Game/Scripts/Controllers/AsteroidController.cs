@@ -10,14 +10,15 @@ using System;
 
 namespace Controllers
 {
-    public class AsteroidController : ITickable
+    public class AsteroidController : ITickable, IDisposable
     {
-        public event Action<int> OnScoreChanged;
+        public event Action DestroyedAsteroid;
         public event Action OnAllAsteroidsDestroyed;
         
         public int TotalAsteroids => _levelVariables.AsteroidCount;
         
         private readonly AsteroidPool _asteroidPool;
+        private readonly BulletController _bulletController;
         private LevelVariables _levelVariables;
 
         private readonly Dictionary<AsteroidView, AsteroidType> _activeAsteroids =
@@ -31,28 +32,29 @@ namespace Controllers
         private float _spawnTimer;
         
         private const float SpawnInterval = 2f;
-        private const int AsteroidScoreCollect = 10;
+        //private const int AsteroidScoreCollect = 10;
         
         private int _asteroidsSpawned;
-        private int _score;
+        //private int _score;
         
         private bool isActive;
         private bool isWin;
 
-        public AsteroidController(AsteroidPool asteroidPool)
+        public AsteroidController(AsteroidPool asteroidPool, BulletController bulletController)
         {
             _asteroidPool = asteroidPool;
+            _bulletController = bulletController;
 
             CalculateBounds();
         }
 
-        public void Activate(BulletController bulletController, LevelVariables levelVariables)
+        public void Activate(LevelVariables levelVariables)
         {
             _levelVariables = levelVariables;
             isActive = true;
             ResetComponents();
 
-            bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
+            _bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
         }
 
         public void Deactivate()
@@ -95,19 +97,20 @@ namespace Controllers
         {
             isWin = false;
             _asteroidsSpawned = 0;
-            _score = 0;
+            //_score = 0;
             _spawnTimer = 0f;
         }
 
         private void OnBulletHitAsteroid(BulletView bullet, AsteroidView asteroid)
         {
-            if (!_activeAsteroids.ContainsKey(asteroid)) return;
+            if (!_activeAsteroids.ContainsKey(asteroid)) 
+                return;
 
             _asteroidPool.Return(asteroid, _activeAsteroids[asteroid]);
             _activeAsteroids.Remove(asteroid);
-            _score += AsteroidScoreCollect;
+            //_score += AsteroidScoreCollect;
 
-            OnScoreChanged?.Invoke(_score);
+            DestroyedAsteroid?.Invoke();
         }
 
         private void CheckWin()
@@ -167,6 +170,11 @@ namespace Controllers
             _maxX = cam.ViewportToWorldPoint(new Vector2(1, 0)).x;
             _spawnY = cam.ViewportToWorldPoint(new Vector2(0, 1)).y + 1f;
             _despawnY = cam.ViewportToWorldPoint(new Vector2(0, 0)).y - 1f;
+        }
+
+        public void Dispose()
+        {
+            _bulletController.OnBulletHitAsteroid -= OnBulletHitAsteroid;
         }
     }
 }

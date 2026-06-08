@@ -2,9 +2,7 @@ using Core;
 using Managers;
 using Screens;
 using Models;
-using UnityEngine;
 using WorldViews;
-using Configs;
 using System;
 using Data;
 using Enums;
@@ -22,6 +20,8 @@ namespace Controllers
         private BulletController _bulletController;
         private AsteroidController _asteroidController;
         private LevelVariables _currentLevelVariables;
+        
+        private const int ScoreForHitAsteroid = 10;
         
         private int _currentLevelId;
         private int _currentScore;
@@ -104,7 +104,7 @@ namespace Controllers
             _ticker.Register(_shipController);
             _bulletController.ResetBullets();
             _asteroidController.ResetAsteroids();
-            _asteroidController.Activate(_bulletController,levelVariables);
+            _asteroidController.Activate(levelVariables);
         }
         
         private void RegisterBullets()
@@ -114,16 +114,16 @@ namespace Controllers
 
         private void SpawnAsteroids(LevelVariables levelVariables)
         {
-            _asteroidController.Activate(_bulletController,levelVariables);
-            _asteroidController.OnScoreChanged += OnScoreChanged;
+            _asteroidController.Activate(levelVariables);
+            _asteroidController.DestroyedAsteroid += OnAsteroidDestroyed;
             _asteroidController.OnAllAsteroidsDestroyed += OnWin;
             _ticker.Register(_asteroidController);
         }
         
-        private void OnScoreChanged(int score)
+        private void OnAsteroidDestroyed()
         {
-            _currentScore = score;
-            _uiManager.GetScreen<GameScreen>().UpdateScore(score);
+            _currentScore += ScoreForHitAsteroid; 
+            _uiManager.GetScreen<GameScreen>().UpdateScore(_currentScore);
         }
 
         private void OnWin()
@@ -215,7 +215,7 @@ namespace Controllers
         public void Dispose()
         {
             _gameManager.GameStateChanged -= OnGameStateChanged;
-            _asteroidController.OnScoreChanged -= OnScoreChanged;
+            _asteroidController.DestroyedAsteroid -= OnAsteroidDestroyed;
             _asteroidController.OnAllAsteroidsDestroyed -= OnWin;
             _shipController.OnHealthChanged -= OnHealthChanged;
             _shipController.OnAsteroidHit -= OnAsteroidHit;

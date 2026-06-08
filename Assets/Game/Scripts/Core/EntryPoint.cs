@@ -1,6 +1,6 @@
 using UnityEngine;
 using Configs;
-using DataUtils;
+using Core;
 using Managers;
 using Models;
 using Controllers;
@@ -39,7 +39,6 @@ namespace Core
             _container.Register(new GameSaves());
             _container.Register(new LevelVariablesGenerator());
             _container.Register(ticker);
-            _container.Register(new GameManager());
         }
 
         private void RegisterModels()
@@ -54,6 +53,7 @@ namespace Core
     
             _container.Register(levelModel);
             _container.Register(new ShipModel());
+            _container.Register(new GameManager());
         }
 
         private void RegisterControllers()
@@ -64,10 +64,10 @@ namespace Core
                 prefabConfig.LargeAsteroidPrefab,
                 asteroidsParent));
             
-            _container.Register(new AsteroidController(_container.Resolve<AsteroidPool>()));
-
             _container.Register(new BulletPool(prefabConfig.BulletPrefab, bulletsParent));
             _container.Register(new BulletController(_container.Resolve<BulletPool>()));
+            
+            _container.Register(new AsteroidController(_container.Resolve<AsteroidPool>(),_container.Resolve<BulletController>()));
             
             _container.Register(new ShipController(
                 _container.Resolve<ShipModel>(),

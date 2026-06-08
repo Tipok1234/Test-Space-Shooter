@@ -1,7 +1,8 @@
 using UnityEngine;
 using Configs;
-using DataUtils;
+using Core;
 using System.Collections.Generic;
+using System.Linq;
 using Managers;
 using Enums;
 using Data;
@@ -49,7 +50,15 @@ namespace Models
 
         public LevelState GetState(int levelId)
         {
-            return _levelStates.Find(s => s.LevelId == levelId);
+            var levelState = _levelStates.FirstOrDefault(x => x.LevelId == levelId);
+
+            if (levelState == null)
+            {
+                Debug.LogError($"LevelState not found: {levelId}");
+                return _levelStates[0];
+            }
+
+            return levelState;
         }
 
         public LevelVariables GetVariables(int levelId)
@@ -72,8 +81,6 @@ namespace Models
         {
             var state = GetState(levelId);
 
-            if (state == null) return;
-
             state.Seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
             state.IsSeedGenerated = true;
 
@@ -84,9 +91,6 @@ namespace Models
         {
             var state = GetState(levelId);
             
-            if (state == null)
-                return;
-
             state.Status = LevelStatusType.Completed;
             state.IsReadyForReplay = true;
             SaveState(state);
@@ -97,7 +101,9 @@ namespace Models
         public void RegenerateSeed(int levelId)
         {
             var state = GetState(levelId);
-            if (state == null) return;
+            
+            if (state == null)
+                return;
 
             state.IsSeedGenerated = false;
             state.IsReadyForReplay = false;
