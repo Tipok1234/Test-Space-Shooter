@@ -15,8 +15,8 @@ namespace Configs
     {
         public int LevelId;
 
-        public int MinAsteroidCount = 1;
-        public int MaxAsteroidCount = 1;
+        public int MinAsteroidCount = 4;
+        public int MaxAsteroidCount = 4;
         
         public float MinAsteroidSpeed;
         public float MaxAsteroidSpeed;

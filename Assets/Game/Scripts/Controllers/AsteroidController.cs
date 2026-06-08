@@ -5,15 +5,15 @@ using Data;
 using System.Collections.Generic;
 using System.Linq;
 using WorldViews;
-using Enums;
 using System;
+using Enums;
 
 namespace Controllers
 {
     public class AsteroidController : ITickable, IDisposable
     {
         public event Action DestroyedAsteroid;
-        public event Action OnAllAsteroidsDestroyed;
+        public event Action AllAsteroidsDestroyed;
         
         public int TotalAsteroids => _levelVariables.AsteroidCount;
         
@@ -32,10 +32,8 @@ namespace Controllers
         private float _spawnTimer;
         
         private const float SpawnInterval = 2f;
-        //private const int AsteroidScoreCollect = 10;
         
         private int _asteroidsSpawned;
-        //private int _score;
         
         private bool isActive;
         private bool isWin;
@@ -46,6 +44,7 @@ namespace Controllers
             _bulletController = bulletController;
 
             CalculateBounds();
+            _bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
         }
 
         public void Activate(LevelVariables levelVariables)
@@ -53,8 +52,6 @@ namespace Controllers
             _levelVariables = levelVariables;
             isActive = true;
             ResetComponents();
-
-            _bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
         }
 
         public void Deactivate()
@@ -81,13 +78,14 @@ namespace Controllers
         
         public void DestroyAsteroid(AsteroidView asteroidView)
         {
-            if (!_activeAsteroids.ContainsKey(asteroidView)) return;
+            if (!_activeAsteroids.TryGetValue(asteroidView, out var asteroid)) 
+                return;
 
-            _asteroidPool.Return(asteroidView, _activeAsteroids[asteroidView]);
+            _asteroidPool.Return(asteroidView, asteroid);
             _activeAsteroids.Remove(asteroidView);
         }
         
-        public void ResetAsteroids()
+        public void Reset()
         {
             Deactivate();
             ResetComponents();
@@ -97,18 +95,12 @@ namespace Controllers
         {
             isWin = false;
             _asteroidsSpawned = 0;
-            //_score = 0;
             _spawnTimer = 0f;
         }
 
-        private void OnBulletHitAsteroid(BulletView bullet, AsteroidView asteroid)
+        private void OnBulletHitAsteroid(AsteroidView asteroid)
         {
-            if (!_activeAsteroids.ContainsKey(asteroid)) 
-                return;
-
-            _asteroidPool.Return(asteroid, _activeAsteroids[asteroid]);
-            _activeAsteroids.Remove(asteroid);
-            //_score += AsteroidScoreCollect;
+            DestroyAsteroid(asteroid);
 
             DestroyedAsteroid?.Invoke();
         }
@@ -121,7 +113,7 @@ namespace Controllers
             if (_asteroidsSpawned >= _levelVariables.AsteroidCount && _activeAsteroids.Count == 0)
             {
                 isWin = true;
-                OnAllAsteroidsDestroyed?.Invoke();
+                AllAsteroidsDestroyed?.Invoke();
             }
         }
 

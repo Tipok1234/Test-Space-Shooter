@@ -1,3 +1,4 @@
+using Config;
 using UnityEngine;
 using Configs;
 using Core;
@@ -13,6 +14,7 @@ namespace Core
     {
         [FormerlySerializedAs("levelConfig")] [SerializeField] private LevelsConfig levelsConfig;
         [SerializeField] private PrefabConfig prefabConfig;
+        [SerializeField] private ShipConfig shipConfig;
         [SerializeField] private Ticker ticker;
         [SerializeField] private UIManager uiManager;
         
@@ -52,7 +54,7 @@ namespace Core
             levelModel.Init(); 
     
             _container.Register(levelModel);
-            _container.Register(new ShipModel());
+            _container.Register(new ShipModel(shipConfig));
             _container.Register(new GameManager());
         }
 
@@ -72,7 +74,7 @@ namespace Core
             _container.Register(new ShipController(
                 _container.Resolve<ShipModel>(),
                 _container.Resolve<BulletController>(),
-                prefabConfig.ShipPrefab
+                prefabConfig.ShipPrefab, shipConfig
             ));
             
             _container.Register(new LevelScreenController(

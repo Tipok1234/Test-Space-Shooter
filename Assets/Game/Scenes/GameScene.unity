@@ -381,8 +381,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ee45abdd446fb04f92c1a67a8a5915b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Core.EntryPoint
-  levelConfig: {fileID: 11400000, guid: 5020e38883e04344c8ee1b9d933f2ddd, type: 2}
+  levelsConfig: {fileID: 11400000, guid: 5020e38883e04344c8ee1b9d933f2ddd, type: 2}
   prefabConfig: {fileID: 11400000, guid: 820978a41fa005d40b6f05fecba5c7df, type: 2}
+  shipConfig: {fileID: 11400000, guid: 6af12b50c6066e34eb548bc4fc86f712, type: 2}
   ticker: {fileID: 133267834}
   uiManager: {fileID: 115067580}
   asteroidsParent: {fileID: 1069256405}

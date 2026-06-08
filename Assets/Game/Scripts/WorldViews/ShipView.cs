@@ -20,7 +20,7 @@ namespace WorldViews
             }
         }
         
-        public void ResetShip()
+        public void Activate()
         {
             transform.position = SpawnPosition;
             gameObject.SetActive(true);

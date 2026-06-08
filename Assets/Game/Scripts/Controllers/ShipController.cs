@@ -4,38 +4,41 @@ using UnityEngine;
 using WorldViews;
 using UnityEngine.InputSystem;
 using System;
+using Config;
 
 namespace Controllers
 {
     public class ShipController : ITickable
     {
-        public ShipView Ship => _shipView;
-        public int MaxLives => _shipModel.MaxLives;
+        public int MaxHealth => _shipModel.MaxHealth;
         
         public event Action OnDeath;
         public event Action<int> OnHealthChanged;
         public event Action<AsteroidView> OnAsteroidHit;
-        public event Action OnDeactivate;
         
         private readonly BulletController _bulletController;
         private readonly ShipView _shipViewPrefab;
         
         private ShipModel _shipModel;
         private ShipView _shipView;
+        private ShipConfig _shipConfig;
 
-        private const float Speed = 5f;
-        private const float ShipSizeX = 0.7f;
-        private const float ShipSizeBottom = 0.7f;
-        private const float ShipSizeTop = 1f;
+        // private const float Speed = 5f;
+        // private const float ShipSizeX = 0.7f;
+        // private const float ShipSizeBottom = 0.7f;
+        // private const float ShipSizeTop = 1f;
         
         private Vector2 _minBounds;
         private Vector2 _maxBounds;
 
-        public ShipController(ShipModel shipModel, BulletController bulletController, ShipView shipView)
+        private bool isEnabled;
+
+        public ShipController(ShipModel shipModel, BulletController bulletController, ShipView shipView, ShipConfig shipConfig)
         {
             _shipViewPrefab = shipView;
             _shipModel = shipModel;
             _bulletController = bulletController;
+            _shipConfig = shipConfig;
             
             CalculateBounds();
         }
@@ -48,44 +51,45 @@ namespace Controllers
                 _shipView.OnHitAsteroid += OnHitAsteroid;
             }
 
-            _shipView.ResetShip();
-        }
-
-        public void ResetShipModel()
-        {
-            _shipModel.ResetShipModel();
+            _shipView.Activate();
+            SetEnabled(true);
         }
 
         public void Tick()
         {
-            if (_shipView == null) 
+            if (!isEnabled) 
                 return;
             
             Move();
             HandleShoot();
         }
         
-        public void ResetShip()
+        public void Reset()
         {
+            _shipModel.ResetShipModel();
+            
             if (_shipView)
             {
-                _shipView.ResetShip();
+                _shipView.Activate();
                 _shipView.OnHitAsteroid -= OnHitAsteroid;
                 _shipView.OnHitAsteroid += OnHitAsteroid;
             }
+
+            SetEnabled(false);
         }
+        
+        public void SetEnabled(bool enabled) => isEnabled = enabled;
         
         public void Deactivate()
         {
             _shipView.Deactivate();
-            OnDeactivate?.Invoke();
         }
         
         private void OnHitAsteroid(AsteroidView asteroidView)
         {
             OnAsteroidHit?.Invoke(asteroidView);
             _shipModel.TakeDamage();
-            OnHealthChanged?.Invoke(_shipModel.CurrentLives);
+            OnHealthChanged?.Invoke(_shipModel.CurrentHealth);
 
             if (_shipModel.IsDead)
             {
@@ -95,7 +99,7 @@ namespace Controllers
         
         private void HandleShoot()
         {
-            if (Keyboard.current.spaceKey.wasPressedThisFrame && _shipView.gameObject.activeSelf)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame && isEnabled)
             {
                 _bulletController.Shoot(_shipView.BulletSpawnPoint.position);
             }
@@ -109,7 +113,7 @@ namespace Controllers
                 0
             );
 
-            Vector3 newPosition = _shipView.transform.position + movement * Speed * Time.deltaTime;
+            Vector3 newPosition = _shipView.transform.position + movement * (_shipConfig.Speed * Time.deltaTime);
 
             newPosition.x = Mathf.Clamp(newPosition.x, _minBounds.x, _maxBounds.x);
             newPosition.y = Mathf.Clamp(newPosition.y, _minBounds.y, _maxBounds.y);
@@ -123,10 +127,10 @@ namespace Controllers
             _minBounds = cam.ViewportToWorldPoint(new Vector2(0, 0));
             _maxBounds = cam.ViewportToWorldPoint(new Vector2(1, 1));
 
-            _minBounds.x += ShipSizeX;
-            _minBounds.y += ShipSizeBottom;
-            _maxBounds.x -= ShipSizeX;
-            _maxBounds.y -= ShipSizeTop;
+            _minBounds.x += _shipConfig.ShipSizeX;
+            _minBounds.y += _shipConfig.ShipSizeBottom;
+            _maxBounds.x -= _shipConfig.ShipSizeX;
+            _maxBounds.y -= _shipConfig.ShipSizeTop;
         }
     }
 }

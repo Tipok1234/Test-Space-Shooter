@@ -7,7 +7,13 @@ namespace Screens
     {
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text healthText;
-        
+
+        public override void OpenScreen()
+        {
+            UpdateScore(0);
+            base.OpenScreen();
+        }
+
         public void UpdateScore(int score)
         {
             scoreText.text = $"Score: {score}";

@@ -1,26 +1,27 @@
-using UnityEngine;
+using Config;
 
 namespace Models
 { 
     public class ShipModel
     {
-        public int MaxLives { get; } = 3;
-        public int CurrentLives { get; private set; }
+        public int CurrentHealth { get; private set; }
+        public int MaxHealth { get;private set; }
 
-        public ShipModel()
+        public ShipModel(ShipConfig shipConfig)
         {
-            CurrentLives = MaxLives;
+            MaxHealth = shipConfig.MaxHealth;
+            CurrentHealth = MaxHealth;
         }
 
         public void TakeDamage()
         {
-            CurrentLives--;
+            CurrentHealth--;
         }
         
         public void ResetShipModel()
         {
-            CurrentLives = MaxLives;
+            CurrentHealth = MaxHealth;
         }
-        public bool IsDead => CurrentLives <= 0;
+        public bool IsDead => CurrentHealth <= 0;
     }
 }

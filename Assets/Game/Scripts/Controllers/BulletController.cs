@@ -13,7 +13,7 @@ namespace Controllers
         private readonly BulletPool _bulletPool;
         private readonly Dictionary<BulletView, bool> _activeBullets = new Dictionary<BulletView, bool>();
 
-        public event Action<BulletView, AsteroidView> OnBulletHitAsteroid;
+        public event Action<AsteroidView> OnBulletHitAsteroid;
 
         private const float BulletSpeed = 10f;
         
@@ -37,7 +37,7 @@ namespace Controllers
             _activeBullets.Add(bullet, true);
         }
         
-        public void ResetBullets()
+        public void Reset()
         {
             foreach (var bullet in _activeBullets.Keys.ToList())
             {
@@ -61,7 +61,7 @@ namespace Controllers
 
         private void OnHitAsteroid(BulletView bullet, AsteroidView asteroid)
         {
-            OnBulletHitAsteroid?.Invoke(bullet, asteroid);
+            OnBulletHitAsteroid?.Invoke(asteroid);
             ReturnBullet(bullet);
         }
 
