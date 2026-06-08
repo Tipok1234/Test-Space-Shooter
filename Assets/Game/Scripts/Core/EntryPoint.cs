@@ -89,7 +89,7 @@ namespace Core
                 _container.Resolve<GameManager>()
             ));
             
-            _container.Register(new GameScreenController(
+            _container.Register(new GameController(
                 uiManager,
                 _container.Resolve<Ticker>(),
                 _container.Resolve<LevelModel>(),

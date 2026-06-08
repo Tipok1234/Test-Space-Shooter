@@ -98,7 +98,7 @@ namespace Models
             UnlockNextLevel(levelId);
         }
 
-        public void RegenerateSeed(int levelId)
+        public void ResetSeed(int levelId)
         {
             var state = GetState(levelId);
             

@@ -6,11 +6,10 @@ using WorldViews;
 using System;
 using Data;
 using Enums;
-using UnityEngine;
 
 namespace Controllers
 {
-    public class GameScreenController : IDisposable
+    public class GameController : IDisposable
     {
         private readonly UIManager _uiManager;
         private readonly LevelModel _levelModel;
@@ -29,7 +28,7 @@ namespace Controllers
         private bool isGameOver;
         private bool isInitialized = false;
         
-        public GameScreenController(UIManager uiManager, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController,ShipController shipController)
+        public GameController(UIManager uiManager, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController,ShipController shipController)
         {
             _shipController = shipController;
             _shipController.OnHealthChanged += OnHealthChanged;
@@ -133,7 +132,7 @@ namespace Controllers
             winScreen.OpenScreen();
             
             _levelModel.CompleteLevel(_currentLevelId);
-            _levelModel.RegenerateSeed(_currentLevelId); 
+            _levelModel.ResetSeed(_currentLevelId); 
             _ticker.Unregister(_shipController);
         }
         
