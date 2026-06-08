@@ -69,7 +69,7 @@ namespace Controllers
         
         private void HandleShoot()
         {
-            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame && _shipView.gameObject.activeSelf)
             {
                 _bulletController.Shoot(_shipView.BulletSpawnPoint.position);
             }

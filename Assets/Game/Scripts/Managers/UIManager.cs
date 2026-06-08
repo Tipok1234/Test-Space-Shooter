@@ -5,7 +5,7 @@ using Screens;
 namespace Managers
 {
     [DefaultExecutionOrder(10)]
-    public class UIManager : Singleton<UIManager>
+    public class UIManager : MonoBehaviour
     {
         [SerializeField] private List<BaseScreen> screensPrefab = new List<BaseScreen>();
         [SerializeField] private List<BaseScreen> screens = new List<BaseScreen>();

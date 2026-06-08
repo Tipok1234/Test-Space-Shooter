@@ -1,21 +1,23 @@
-using Screens;
 using UnityEngine;
-using Datas;
+using Configs;
 using DataUtils;
 using Managers;
 using Models;
 using Controllers;
+using UnityEngine.Serialization;
 
 namespace Core
 {
     [DefaultExecutionOrder(10)]
     public class EntryPoint : MonoBehaviour
     {
-        [SerializeField] private LevelConfig levelConfig;
+        [FormerlySerializedAs("levelConfig")] [SerializeField] private LevelsConfig levelsConfig;
         [SerializeField] private PrefabConfig prefabConfig;
         [SerializeField] private Ticker ticker;
+        [SerializeField] private UIManager uiManager;
         
         [SerializeField] private Transform asteroidsParent;
+        [SerializeField] private Transform bulletsParent;
 
         private DIContainer _container;
 
@@ -23,7 +25,7 @@ namespace Core
         {
             _container = new DIContainer();
         
-            UIManager.Instance.Init();
+            uiManager.Init();
             
             RegisterServices();
             RegisterModels();
@@ -37,12 +39,13 @@ namespace Core
             _container.Register(new GameSaves());
             _container.Register(new LevelVariablesGenerator());
             _container.Register(ticker);
+            _container.Register(new GameManager());
         }
 
         private void RegisterModels()
         {
             var levelModel = new LevelModel(
-                levelConfig.LevelsData,
+                levelsConfig.LevelsData,
                 _container.Resolve<GameSaves>(),
                 _container.Resolve<LevelVariablesGenerator>()
             );
@@ -55,85 +58,39 @@ namespace Core
 
         private void RegisterControllers()
         {
-            var mapScreen = UIManager.Instance.GetScreen<MapScreen>();
-            var levelScreen = UIManager.Instance.GetScreen<LevelScreen>();
-            var gameScreen = UIManager.Instance.GetScreen<GameScreen>();
-            var loseScreen = UIManager.Instance.GetScreen<LoseScreen>();
-            var winScreen = UIManager.Instance.GetScreen<WinScreen>();
+            _container.Register(new AsteroidPool(
+                prefabConfig.SmallAsteroidPrefab,
+                prefabConfig.MediumAsteroidPrefab,
+                prefabConfig.LargeAsteroidPrefab,
+                asteroidsParent));
+            
+            _container.Register(new AsteroidController(_container.Resolve<AsteroidPool>()));
 
-            _container.Register(new MapScreenController(
-                mapScreen,
-                _container.Resolve<LevelModel>(),
-                OnLevelClick
-            ));
-
+            _container.Register(new BulletPool(prefabConfig.BulletPrefab, bulletsParent));
+            _container.Register(new BulletController(_container.Resolve<BulletPool>()));
+            
             _container.Register(new LevelScreenController(
-                levelScreen,
                 _container.Resolve<LevelModel>(),
-                OnPlay
+                uiManager,
+                _container.Resolve<GameManager>()
             ));
             
-            var callbacks = new GameScreenCallbacks
-            {
-                OnMenu = OnMenu,
-                OnWin = OnWin,
-                OnNext = OnNext
-            };
-            
-            var screens = new GameScreens
-            {
-                GameScreen = UIManager.Instance.GetScreen<GameScreen>(),
-                LoseScreen = UIManager.Instance.GetScreen<LoseScreen>(),
-                WinScreen = UIManager.Instance.GetScreen<WinScreen>()
-            };
+            _container.Register(new MapScreenController(
+                uiManager,
+                _container.Resolve<LevelModel>(),
+                _container.Resolve<GameManager>()
+            ));
             
             _container.Register(new GameScreenController(
-                screens,
+                uiManager,
                 _container.Resolve<ShipModel>(),
                 prefabConfig,
                 _container.Resolve<Ticker>(),
-                asteroidsParent,
-                callbacks
+                _container.Resolve<LevelModel>(),
+                _container.Resolve<GameManager>(),
+                _container.Resolve<BulletController>(),
+                _container.Resolve<AsteroidController>()
             ));
-        }
-        
-        private void OnWin(int levelId)
-        {
-            var levelModel = _container.Resolve<LevelModel>();
-            levelModel.CompleteLevel(levelId);
-            levelModel.RegenerateSeed(levelId); 
-        }
-        
-        private void OnMenu()
-        {
-            _container.Resolve<MapScreenController>().Show();
-        }
-        
-        private void OnNext(int currentLevelId)
-        {
-            var levelModel = _container.Resolve<LevelModel>();
-            var levelsData = levelModel.GetLevelsData();
-    
-            int nextLevelId = (currentLevelId + 1) % levelsData.Count;
-    
-            levelModel.GenerateSeed(nextLevelId);
-            var nextVariables = levelModel.GetVariables(nextLevelId);
-    
-            _container.Resolve<GameScreenController>().Show(nextLevelId, nextVariables);
-        }
-        
-        private void OnPlay(int levelId)
-        {
-            var levelVariables = _container.Resolve<LevelModel>().GetVariables(levelId);
-    
-            _container.Resolve<MapScreenController>().Hide();
-            _container.Resolve<LevelScreenController>().Hide();
-            _container.Resolve<GameScreenController>().Show(levelId, levelVariables);
-        }
-        
-        private void OnLevelClick(int levelId)
-        {
-            _container.Resolve<LevelScreenController>().Show(levelId);
         }
 
         private void Init()

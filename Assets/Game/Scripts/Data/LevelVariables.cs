@@ -1,7 +1,7 @@
 using System;
 using Enums;
 
-namespace Datas
+namespace Data
 {
     [Serializable]
     public class LevelVariables
@@ -10,9 +10,9 @@ namespace Datas
         
         public float AsteroidSpeed;
         
-        public AsteroidTypeEnum AsteroidType;
+        public AsteroidType AsteroidType;
         
-        public LevelVariables(int asteroidCount, float asteroidSpeed, AsteroidTypeEnum asteroidType)
+        public LevelVariables(int asteroidCount, float asteroidSpeed, AsteroidType asteroidType)
         {
             AsteroidCount = asteroidCount;
             AsteroidSpeed = asteroidSpeed;

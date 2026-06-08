@@ -384,7 +384,9 @@ MonoBehaviour:
   levelConfig: {fileID: 11400000, guid: 5020e38883e04344c8ee1b9d933f2ddd, type: 2}
   prefabConfig: {fileID: 11400000, guid: 820978a41fa005d40b6f05fecba5c7df, type: 2}
   ticker: {fileID: 133267834}
+  uiManager: {fileID: 115067580}
   asteroidsParent: {fileID: 1069256405}
+  bulletsParent: {fileID: 1119996652}
 --- !u!4 &615140892
 Transform:
   m_ObjectHideFlags: 0
@@ -515,6 +517,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1119996651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1119996652}
+  m_Layer: 0
+  m_Name: BulletsParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1119996652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119996651}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1173958794
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,3 +638,4 @@ SceneRoots:
   - {fileID: 615140892}
   - {fileID: 133267833}
   - {fileID: 1069256405}
+  - {fileID: 1119996652}

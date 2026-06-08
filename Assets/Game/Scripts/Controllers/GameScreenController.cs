@@ -4,19 +4,21 @@ using Screens;
 using Models;
 using UnityEngine;
 using WorldViews;
-using Datas;
+using Configs;
 using System;
+using Data;
+using Enums;
 
 namespace Controllers
 {
-    public class GameScreenController
+    public class GameScreenController : IDisposable
     {
-        private readonly GameScreens _screens;
-        private readonly GameScreenCallbacks _callbacks;
+        private readonly UIManager _uiManager;
+        private readonly LevelModel _levelModel;
         private readonly ShipModel _shipModel;
         private readonly PrefabConfig _prefabConfig;
         private readonly Ticker _ticker;
-        private readonly Transform _asteroidsParent;
+        private readonly GameManager _gameManager;
 
         private ShipView _shipView;
         private ShipController _shipController;
@@ -29,26 +31,31 @@ namespace Controllers
 
         private bool isGameOver;
         
-        public GameScreenController(GameScreens screens, ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, Transform asteroidsParent, GameScreenCallbacks callbacks)
+        public GameScreenController(UIManager uiManager, ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController)
         {
-            _screens = screens;
+            _uiManager = uiManager;
             _shipModel = shipModel;
             _prefabConfig = prefabConfig;
+            _bulletController = bulletController;
+            _asteroidController = asteroidController;
             _ticker = ticker;
-            _asteroidsParent = asteroidsParent;
-            _callbacks = callbacks;
+            _levelModel = levelModel;
+            _gameManager = gameManager;
+            _gameManager.GameStateChanged += OnGameStateChanged;
         }
 
-        public void Show(int levelId, LevelVariables levelVariables)
+        private void Show(int levelId, LevelVariables levelVariables)
         {
             isGameOver = false;
             _currentLevelId = levelId;
             _currentLevelVariables = levelVariables;
             _currentScore = 0;
 
-            _screens.GameScreen.OpenScreen();
-            _screens.GameScreen.UpdateScore(0);
-            _screens.GameScreen.UpdateHealth(_shipModel.MaxLives);
+            var gameScreen = _uiManager.GetScreen<GameScreen>();
+            
+            gameScreen.OpenScreen();
+            gameScreen.UpdateScore(0);
+            gameScreen.UpdateHealth(_shipModel.MaxLives);
 
             if (_shipView == null)
             {
@@ -59,54 +66,64 @@ namespace Controllers
                 ResetControllers(levelVariables);
             }
         }
+        
+        private void OnGameStateChanged(GameStateType gameState)
+        {
+            switch (gameState)
+            {
+                case GameStateType.Map:
+                    break;
+                case GameStateType.LevelSelect:
+                    break;
+                case GameStateType.Game:
+                    var levelVariables = _levelModel.GetVariables(_levelModel.CurrentLevel);
+                    Show(_levelModel.CurrentLevel,levelVariables);
+                    break;
+                case GameStateType.Win:
+                    break;
+                case GameStateType.Lose:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
+            }
+        }
 
         private void Setup(LevelVariables levelVariables)
         {
             SpawnShip();
-            SpawnBullets();
+            RegisterBullets();
             SpawnAsteroids(levelVariables);
             InitShipController();
         }
 
         private void ResetControllers(LevelVariables levelVariables)
         {
-            _shipView.ResetShip(_shipModel.SpawnPosition);
+            _shipView.ResetShip();
             _shipController.ResetShipController();
             _ticker.Register(_shipController);
             _bulletController.ResetBullets();
-            _asteroidController.ResetAsteroids(levelVariables);
-            _asteroidController.Activate(_bulletController);
+            _asteroidController.ResetAsteroids();
+            _asteroidController.Activate(_bulletController,levelVariables);
         }
 
         private void SpawnShip()
         {
             if (_shipView == null)
             {
-                _shipView = UnityEngine.Object.Instantiate(_prefabConfig.ShipPrefab, _shipModel.SpawnPosition, Quaternion.identity);
+                _shipView = UnityEngine.Object.Instantiate(_prefabConfig.ShipPrefab, Vector2.zero, Quaternion.identity);
             }
-            else
-            {
-                _shipView.ResetShip(_shipModel.SpawnPosition);
-            }
+
+            _shipView.ResetShip();
         }
 
-        private void SpawnBullets()
+        private void RegisterBullets()
         {
-            var bulletPool = new BulletPool(_prefabConfig.BulletPrefab, _shipView.BulletSpawnPoint);
-            _bulletController = new BulletController(bulletPool);
             _ticker.Register(_bulletController);
         }
 
         private void SpawnAsteroids(LevelVariables levelVariables)
         {
-            var asteroidPool = new AsteroidPool(
-                _prefabConfig.SmallAsteroidPrefab,
-                _prefabConfig.MediumAsteroidPrefab,
-                _prefabConfig.LargeAsteroidPrefab,
-                _asteroidsParent
-            );
-            _asteroidController = new AsteroidController(asteroidPool, levelVariables);
-            _asteroidController.Activate(_bulletController);
+            _asteroidController.Activate(_bulletController,levelVariables);
             _asteroidController.OnScoreChanged += OnScoreChanged;
             _asteroidController.OnAllAsteroidsDestroyed += OnWin;
             _ticker.Register(_asteroidController);
@@ -115,7 +132,7 @@ namespace Controllers
         private void OnScoreChanged(int score)
         {
             _currentScore = score;
-            _screens.GameScreen.UpdateScore(score);
+            _uiManager.GetScreen<GameScreen>().UpdateScore(score);
         }
 
         private void OnWin()
@@ -124,27 +141,40 @@ namespace Controllers
                 return;
     
             _shipController.Deactivate();
-            _screens.WinScreen.Init(OnMenu, OnNextLevel);
-            _screens.WinScreen.UpdateView(_currentScore / 10, _asteroidController.TotalAsteroids);
-            _screens.WinScreen.OpenScreen();
-            _callbacks.OnWin?.Invoke(_currentLevelId);
+            var winScreen = _uiManager.GetScreen<WinScreen>();
+            
+            winScreen.Init(OnMenu, OnNextLevel);
+            winScreen.UpdateView(_currentScore / 10, _asteroidController.TotalAsteroids);
+            winScreen.OpenScreen();
+            
+            _levelModel.CompleteLevel(_currentLevelId);
+            _levelModel.RegenerateSeed(_currentLevelId); 
         }
         
         private void OnMenu()
         {
+            _gameManager.SetState(GameStateType.Map);
             Cleanup();
             _shipModel.ResetShipModel();
-            _screens.WinScreen.CloseScreen();
-            _screens.GameScreen.CloseScreen();
-            _callbacks.OnMenu?.Invoke();
+            _uiManager.GetScreen<WinScreen>().CloseScreen();
+            _uiManager.GetScreen<GameScreen>().CloseScreen();
         }
 
         private void OnNextLevel()
         {
+            _gameManager.SetState(GameStateType.Game);
             Cleanup();
             _shipModel.ResetShipModel();
-            _screens.WinScreen.CloseScreen();
-            _callbacks.OnNext?.Invoke(_currentLevelId);
+            _uiManager.GetScreen<WinScreen>().CloseScreen();
+            
+            var levelsData = _levelModel.GetLevelsData();
+    
+            int nextLevelId = (_currentLevelId + 1) % levelsData.Count;
+    
+            _levelModel.GenerateSeed(nextLevelId);
+            var nextVariables = _levelModel.GetVariables(nextLevelId);
+    
+            Show(nextLevelId, nextVariables);
         }
         
         private void OnAsteroidHit(AsteroidView asteroidView)
@@ -154,20 +184,26 @@ namespace Controllers
         
         private void OnHealthChanged(int health)
         {
-            _screens.GameScreen.UpdateHealth(health);
+            _uiManager.GetScreen<GameScreen>().UpdateHealth(health);
         }
 
         private void OnLose()
         {
+            _gameManager.SetState(GameStateType.Lose);
+            
             isGameOver = true;
             _shipController.Deactivate();
-            _screens.LoseScreen.Init(OnRestart);
-            _screens.LoseScreen.OpenScreen();
-            _ticker.Register(_screens.LoseScreen);
+            
+            var loseScreen = _uiManager.GetScreen<LoseScreen>();
+            loseScreen.Init(OnRestart);
+            loseScreen.OpenScreen();
+            
+            _ticker.Register(loseScreen);
         }
         
         private void OnRestart()
         {
+            _gameManager.SetState(GameStateType.Game);
             Cleanup();
             _shipModel.ResetShipModel();
             Show(_currentLevelId, _currentLevelVariables);
@@ -179,15 +215,32 @@ namespace Controllers
             _shipController.OnHealthChanged += OnHealthChanged;
             _shipController.OnAsteroidHit += OnAsteroidHit;
             _shipController.OnDeath += OnLose;
-            _shipController.OnDeactivate += () => _ticker.Unregister(_shipController);
+            _shipController.OnDeactivate += OnShipDeactivated;
             _ticker.Register(_shipController);
+        }
+        
+        private void OnShipDeactivated()
+        {
+            _ticker.Unregister(_shipController);
         }
         
         private void Cleanup()
         {
-            _ticker.Unregister(_screens.LoseScreen);
-            _screens.LoseScreen.CloseScreen();
+            var loseScreen = _uiManager.GetScreen<LoseScreen>();
+            _ticker.Unregister(loseScreen);
+            loseScreen.CloseScreen();
             _asteroidController.Deactivate();
+        }
+
+        public void Dispose()
+        {
+            _gameManager.GameStateChanged -= OnGameStateChanged;
+            _asteroidController.OnScoreChanged -= OnScoreChanged;
+            _asteroidController.OnAllAsteroidsDestroyed -= OnWin;
+            _shipController.OnHealthChanged -= OnHealthChanged;
+            _shipController.OnAsteroidHit -= OnAsteroidHit;
+            _shipController.OnDeath -= OnLose;
+            _shipController.OnDeactivate -= OnShipDeactivated;
         }
     }
 }

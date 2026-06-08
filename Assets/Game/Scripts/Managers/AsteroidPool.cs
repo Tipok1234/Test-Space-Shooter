@@ -35,7 +35,7 @@ namespace Managers
             }
         }
 
-        public AsteroidView Get(AsteroidTypeEnum type, Vector3 position)
+        public AsteroidView Get(AsteroidType type, Vector3 position)
         {
             var pool = GetPool(type);
             var asteroid = pool.Count > 0 ? pool.Dequeue() : CreateAsteroid(GetPrefab(type));
@@ -43,30 +43,30 @@ namespace Managers
             return asteroid;
         }
 
-        public void Return(AsteroidView asteroid, AsteroidTypeEnum type)
+        public void Return(AsteroidView asteroid, AsteroidType type)
         {
             asteroid.Deactivate();
             GetPool(type).Enqueue(asteroid);
         }
 
-        private Queue<AsteroidView> GetPool(AsteroidTypeEnum type)
+        private Queue<AsteroidView> GetPool(AsteroidType type)
         {
             return type switch
             {
-                AsteroidTypeEnum.Small => _smallPool,
-                AsteroidTypeEnum.Medium => _mediumPool,
-                AsteroidTypeEnum.Large => _largePool,
+                AsteroidType.Small => _smallPool,
+                AsteroidType.Medium => _mediumPool,
+                AsteroidType.Large => _largePool,
                 _ => _smallPool
             };
         }
 
-        private AsteroidView GetPrefab(AsteroidTypeEnum type)
+        private AsteroidView GetPrefab(AsteroidType type)
         {
             return type switch
             {
-                AsteroidTypeEnum.Small => _smallPrefab,
-                AsteroidTypeEnum.Medium => _mediumPrefab,
-                AsteroidTypeEnum.Large => _largePrefab,
+                AsteroidType.Small => _smallPrefab,
+                AsteroidType.Medium => _mediumPrefab,
+                AsteroidType.Large => _largePrefab,
                 _ => _smallPrefab
             };
         }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using WorldViews;
 
-namespace Datas
+namespace Configs
 {
     [CreateAssetMenu(fileName = "PrefabConfig", menuName = "PrefabConfig")]
     public class PrefabConfig : ScriptableObject

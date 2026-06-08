@@ -2,7 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using Datas;
+using Configs;
+using Data;
 
 namespace Screens
 {
@@ -29,9 +30,9 @@ namespace Screens
             closeButton.onClick.AddListener(OnClose);
         }
 
-        public void UpdateView(LevelData levelData, LevelVariables levelVariables)
+        public void UpdateView(LevelConfig levelConfig, LevelVariables levelVariables)
         {
-            levelNameText.text = $"Level {levelData.LevelId + 1}";
+            levelNameText.text = $"Level {levelConfig.LevelId + 1}";
 
             if (levelVariables == null)
             {

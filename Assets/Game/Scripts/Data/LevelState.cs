@@ -1,7 +1,7 @@
 using System;
 using Enums;
 
-namespace DataUtils
+namespace Data
 {
     [Serializable]
     public class LevelState
@@ -9,7 +9,7 @@ namespace DataUtils
         public int LevelId;
         public int Seed;
         
-        public LevelStatusEnum Status;
+        public LevelStatusType Status;
         
         public bool IsSeedGenerated;
         public bool IsReadyForReplay;

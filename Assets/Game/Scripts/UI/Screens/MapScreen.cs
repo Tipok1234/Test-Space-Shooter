@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Views;
 using System;
-using Datas;
-using DataUtils;
+using Configs;
+using Data;
 
 namespace Screens
 {
@@ -16,7 +16,7 @@ namespace Screens
 
         private readonly List<LevelView> _levelViews = new List<LevelView>();
 
-        public void Init(List<LevelData> levelsData, Action<int> onLevelClick)
+        public void Init(List<LevelConfig> levelsData, Action<int> onLevelClick)
         {
             LevelClick = onLevelClick;
             

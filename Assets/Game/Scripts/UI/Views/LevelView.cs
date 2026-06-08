@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using DataUtils;
+using Data;
 using Enums;
 using TMPro;
 
@@ -28,15 +28,15 @@ namespace Views
         {
             switch (state.Status)
             {
-                case LevelStatusEnum.Locked:
+                case LevelStatusType.Locked:
                     statusText.text = "Locked";
                     button.interactable = false;
                     break;
-                case LevelStatusEnum.Unlocked:
+                case LevelStatusType.Unlocked:
                     statusText.text = "Unlocked";
                     button.interactable = true;
                     break;
-                case LevelStatusEnum.Completed:
+                case LevelStatusType.Completed:
                     statusText.text = "Completed";
                     button.interactable = true;
                     break;

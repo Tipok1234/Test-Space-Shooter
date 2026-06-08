@@ -1,6 +1,6 @@
 namespace Enums
 {
-    public enum LevelStatusEnum
+    public enum LevelStatusType
     {
         Locked,
         Unlocked,

@@ -1,21 +1,22 @@
 using System;
-using Datas;
+using Configs;
 using Enums;
+using Data;
 
 namespace Managers
 {
     public class LevelVariablesGenerator
     {
-        private static readonly AsteroidTypeEnum[] AsteroidTypes = 
-            (AsteroidTypeEnum[])Enum.GetValues(typeof(AsteroidTypeEnum));
+        private static readonly AsteroidType[] AsteroidTypes = 
+            (AsteroidType[])Enum.GetValues(typeof(AsteroidType));
         
-        public LevelVariables Generate(int seed, LevelData levelData)
+        public LevelVariables Generate(int seed, LevelConfig levelConfig)
         {
             var random = new System.Random(seed);
     
             return new LevelVariables(
-                asteroidCount: random.Next(levelData.MinAsteroidCount, levelData.MaxAsteroidCount + 1),
-                asteroidSpeed: (float)(random.NextDouble() * (levelData.MaxAsteroidSpeed - levelData.MinAsteroidSpeed) + levelData.MinAsteroidSpeed),
+                asteroidCount: random.Next(levelConfig.MinAsteroidCount, levelConfig.MaxAsteroidCount + 1),
+                asteroidSpeed: (float)(random.NextDouble() * (levelConfig.MaxAsteroidSpeed - levelConfig.MinAsteroidSpeed) + levelConfig.MinAsteroidSpeed),
                 asteroidType: AsteroidTypes[random.Next(AsteroidTypes.Length)]
             );
         }

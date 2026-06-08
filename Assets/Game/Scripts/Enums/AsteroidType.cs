@@ -1,6 +1,6 @@
 namespace Enums
 {
-    public enum AsteroidTypeEnum
+    public enum AsteroidType
     {
         Small,
         Medium,

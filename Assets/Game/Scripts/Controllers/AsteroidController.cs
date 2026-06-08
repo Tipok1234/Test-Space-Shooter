@@ -1,7 +1,7 @@
 using UnityEngine;
 using Interfaces;
 using Managers;
-using Datas;
+using Data;
 using System.Collections.Generic;
 using System.Linq;
 using WorldViews;
@@ -20,8 +20,8 @@ namespace Controllers
         private readonly AsteroidPool _asteroidPool;
         private LevelVariables _levelVariables;
 
-        private readonly Dictionary<AsteroidView, AsteroidTypeEnum> _activeAsteroids =
-            new Dictionary<AsteroidView, AsteroidTypeEnum>();
+        private readonly Dictionary<AsteroidView, AsteroidType> _activeAsteroids =
+            new Dictionary<AsteroidView, AsteroidType>();
 
         private float _minX;
         private float _maxX;
@@ -39,21 +39,18 @@ namespace Controllers
         private bool isActive;
         private bool isWin;
 
-        public AsteroidController(AsteroidPool asteroidPool, LevelVariables levelVariables)
+        public AsteroidController(AsteroidPool asteroidPool)
         {
             _asteroidPool = asteroidPool;
-            _levelVariables = levelVariables;
 
             CalculateBounds();
         }
 
-        public void Activate(BulletController bulletController)
+        public void Activate(BulletController bulletController, LevelVariables levelVariables)
         {
+            _levelVariables = levelVariables;
             isActive = true;
-            isWin = false;
-            _asteroidsSpawned = 0;
-            _score = 0;
-            _spawnTimer = 0f;
+            ResetComponents();
 
             bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
         }
@@ -88,10 +85,14 @@ namespace Controllers
             _activeAsteroids.Remove(asteroidView);
         }
         
-        public void ResetAsteroids(LevelVariables levelVariables)
+        public void ResetAsteroids()
         {
             Deactivate();
-            _levelVariables = levelVariables; 
+            ResetComponents();
+        }
+
+        private void ResetComponents()
+        {
             isWin = false;
             _asteroidsSpawned = 0;
             _score = 0;
@@ -123,7 +124,8 @@ namespace Controllers
 
         private void HandleSpawn()
         {
-            if (_asteroidsSpawned >= _levelVariables.AsteroidCount) return;
+            if (_asteroidsSpawned >= _levelVariables.AsteroidCount) 
+                return;
 
             _spawnTimer += Time.deltaTime;
 

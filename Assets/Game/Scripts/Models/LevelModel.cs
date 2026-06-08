@@ -1,22 +1,25 @@
 using UnityEngine;
-using Datas;
+using Configs;
 using DataUtils;
 using System.Collections.Generic;
 using Managers;
 using Enums;
+using Data;
 
 namespace Models
 {
     public class LevelModel
     {
-        private readonly List<LevelData> _levelsData;
+        private readonly List<LevelConfig> _levelsData;
         private readonly List<LevelState> _levelStates;
         private readonly LevelVariablesGenerator _generator;
         private readonly GameSaves _gameSaves;
 
         private const string SaveKeyPrefix = "Level_State_Key";
 
-        public LevelModel(List<LevelData> levelsData, GameSaves gameSaves, LevelVariablesGenerator generator)
+        public int CurrentLevel {get; private set;}
+        
+        public LevelModel(List<LevelConfig> levelsData, GameSaves gameSaves, LevelVariablesGenerator generator)
         {
             _levelsData = levelsData;
             _gameSaves = gameSaves;
@@ -28,8 +31,13 @@ namespace Models
         {
             LoadStates();
         }
+
+        public void SetCurrentLevel(int levelIndex)
+        {
+            CurrentLevel = levelIndex;   
+        }
         
-        public List<LevelData> GetLevelsData()
+        public List<LevelConfig> GetLevelsData()
         {
             return _levelsData;
         }
@@ -55,7 +63,7 @@ namespace Models
             return _generator.Generate(state.Seed, data);
         }
 
-        public LevelData GetData(int levelId)
+        public LevelConfig GetData(int levelId)
         {
             return _levelsData.Find(d => d.LevelId == levelId);
         }
@@ -79,7 +87,7 @@ namespace Models
             if (state == null)
                 return;
 
-            state.Status = LevelStatusEnum.Completed;
+            state.Status = LevelStatusType.Completed;
             state.IsReadyForReplay = true;
             SaveState(state);
 
@@ -105,10 +113,10 @@ namespace Models
 
             var nextState = GetState(nextLevelData.LevelId);
             
-            if (nextState == null || nextState.Status != LevelStatusEnum.Locked)
+            if (nextState == null || nextState.Status != LevelStatusType.Locked)
                 return;
 
-            nextState.Status = LevelStatusEnum.Unlocked;
+            nextState.Status = LevelStatusType.Unlocked;
             SaveState(nextState);
         }
 
@@ -128,7 +136,7 @@ namespace Models
                     var newState = new LevelState
                     {
                         LevelId = levelData.LevelId,
-                        Status = levelData.LevelId == 0 ? LevelStatusEnum.Unlocked : LevelStatusEnum.Locked,
+                        Status = levelData.LevelId == 0 ? LevelStatusType.Unlocked : LevelStatusType.Locked,
                         Seed = 0,
                         IsSeedGenerated = false
                     };

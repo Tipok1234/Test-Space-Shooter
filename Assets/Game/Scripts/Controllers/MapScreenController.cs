@@ -1,42 +1,66 @@
 using Models;
 using Screens;
-using UnityEngine;
 using System;
+using Enums;
+using Managers;
 
 namespace Controllers
 {
-    public class MapScreenController 
+    public class MapScreenController : IDisposable
     {
-        private readonly MapScreen _mapScreen;
+        private readonly UIManager _uiManager;
         private readonly LevelModel _levelModel;
-        private readonly Action<int> _onLevelClick;
-
-        public MapScreenController(MapScreen mapScreen, LevelModel levelModel, Action<int> onLevelClick)
+        private readonly GameManager _gameManager;
+        
+        public MapScreenController(UIManager uiManager, LevelModel levelModel, GameManager gameManager)
         {
-            _mapScreen = mapScreen;
+            _uiManager = uiManager;
             _levelModel = levelModel;
-            _onLevelClick = onLevelClick;
+            _gameManager = gameManager;
+            _gameManager.GameStateChanged += OnGameStateChanged;
         }
 
         public void Init()
         {
-            _mapScreen.Init(_levelModel.GetLevelsData(), OnLevelClick);
+            _uiManager.GetScreen<MapScreen>().Init(_levelModel.GetLevelsData(), OnLevelClick);
         }
 
         public void Show()
         {
-            _mapScreen.UpdateView(_levelModel.GetLevelStates());
-            _mapScreen.OpenScreen();
-        }
-
-        public void Hide()
-        {
-            _mapScreen.CloseScreen();
+            var mapScreen = _uiManager.GetScreen<MapScreen>();
+            mapScreen.UpdateView(_levelModel.GetLevelStates());
+            mapScreen.OpenScreen();
         }
 
         private void OnLevelClick(int levelId)
         {
-            _onLevelClick?.Invoke(levelId);
+            _levelModel.SetCurrentLevel(levelId);
+            _gameManager.SetState(GameStateType.LevelSelect);
+        }
+        
+        private void OnGameStateChanged(GameStateType gameState)
+        {
+            switch (gameState)
+            {
+                case GameStateType.Map:
+                    Show();
+                    break;
+                case GameStateType.LevelSelect:
+                    break;
+                case GameStateType.Game:
+                    break;
+                case GameStateType.Win:
+                    break;
+                case GameStateType.Lose:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
+            }
+        }
+
+        public void Dispose()
+        {
+            _gameManager.GameStateChanged -= OnGameStateChanged;
         }
     }
 }
