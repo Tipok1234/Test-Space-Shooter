@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Datas.LevelConfig
   LevelsData:
   - LevelId: 0
-    MinAsteroidCount: 4
-    MaxAsteroidCount: 4
+    MinAsteroidCount: 10
+    MaxAsteroidCount: 15
     MinAsteroidSpeed: 1
     MaxAsteroidSpeed: 3
   - LevelId: 1
-    MinAsteroidCount: 4
-    MaxAsteroidCount: 4
-    MinAsteroidSpeed: 1.4
-    MaxAsteroidSpeed: 3.4
-  - LevelId: 2
-    MinAsteroidCount: 4
-    MaxAsteroidCount: 4
+    MinAsteroidCount: 15
+    MaxAsteroidCount: 25
     MinAsteroidSpeed: 2
     MaxAsteroidSpeed: 4
+  - LevelId: 2
+    MinAsteroidCount: 25
+    MaxAsteroidCount: 45
+    MinAsteroidSpeed: 3
+    MaxAsteroidSpeed: 6
