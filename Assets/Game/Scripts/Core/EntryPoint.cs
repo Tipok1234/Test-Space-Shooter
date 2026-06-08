@@ -69,6 +69,12 @@ namespace Core
             _container.Register(new BulletPool(prefabConfig.BulletPrefab, bulletsParent));
             _container.Register(new BulletController(_container.Resolve<BulletPool>()));
             
+            _container.Register(new ShipController(
+                _container.Resolve<ShipModel>(),
+                _container.Resolve<BulletController>(),
+                prefabConfig.ShipPrefab
+            ));
+            
             _container.Register(new LevelScreenController(
                 _container.Resolve<LevelModel>(),
                 uiManager,
@@ -83,13 +89,12 @@ namespace Core
             
             _container.Register(new GameScreenController(
                 uiManager,
-                _container.Resolve<ShipModel>(),
-                prefabConfig,
                 _container.Resolve<Ticker>(),
                 _container.Resolve<LevelModel>(),
                 _container.Resolve<GameManager>(),
                 _container.Resolve<BulletController>(),
-                _container.Resolve<AsteroidController>()
+                _container.Resolve<AsteroidController>(),
+                _container.Resolve<ShipController>()
             ));
         }
 

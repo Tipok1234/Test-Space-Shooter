@@ -15,12 +15,9 @@ namespace Controllers
     {
         private readonly UIManager _uiManager;
         private readonly LevelModel _levelModel;
-        private readonly ShipModel _shipModel;
-        private readonly PrefabConfig _prefabConfig;
         private readonly Ticker _ticker;
         private readonly GameManager _gameManager;
 
-        private ShipView _shipView;
         private ShipController _shipController;
         private BulletController _bulletController;
         private AsteroidController _asteroidController;
@@ -31,11 +28,15 @@ namespace Controllers
 
         private bool isGameOver;
         
-        public GameScreenController(UIManager uiManager, ShipModel shipModel, PrefabConfig prefabConfig, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController)
+        public GameScreenController(UIManager uiManager, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController,ShipController shipController)
         {
+            _shipController = shipController;
+            _shipController.OnHealthChanged += OnHealthChanged;
+            _shipController.OnAsteroidHit += OnAsteroidHit;
+            _shipController.OnDeath += OnLose;
+            _shipController.OnDeactivate += OnShipDeactivated;
+            
             _uiManager = uiManager;
-            _shipModel = shipModel;
-            _prefabConfig = prefabConfig;
             _bulletController = bulletController;
             _asteroidController = asteroidController;
             _ticker = ticker;
@@ -55,9 +56,8 @@ namespace Controllers
             
             gameScreen.OpenScreen();
             gameScreen.UpdateScore(0);
-            gameScreen.UpdateHealth(_shipModel.MaxLives);
-
-            if (_shipView == null)
+            
+            if (_shipController.Ship == null)
             {
                 Setup(levelVariables);
             }
@@ -65,6 +65,8 @@ namespace Controllers
             {
                 ResetControllers(levelVariables);
             }
+            
+            gameScreen.UpdateHealth(_shipController.MaxLives);
         }
         
         private void OnGameStateChanged(GameStateType gameState)
@@ -90,32 +92,21 @@ namespace Controllers
 
         private void Setup(LevelVariables levelVariables)
         {
-            SpawnShip();
+            _shipController.SpawnShip();
+            _ticker.Register(_shipController);
             RegisterBullets();
             SpawnAsteroids(levelVariables);
-            InitShipController();
         }
 
         private void ResetControllers(LevelVariables levelVariables)
         {
-            _shipView.ResetShip();
-            _shipController.ResetShipController();
+            _shipController.ResetShip();
             _ticker.Register(_shipController);
             _bulletController.ResetBullets();
             _asteroidController.ResetAsteroids();
             _asteroidController.Activate(_bulletController,levelVariables);
         }
-
-        private void SpawnShip()
-        {
-            if (_shipView == null)
-            {
-                _shipView = UnityEngine.Object.Instantiate(_prefabConfig.ShipPrefab, Vector2.zero, Quaternion.identity);
-            }
-
-            _shipView.ResetShip();
-        }
-
+        
         private void RegisterBullets()
         {
             _ticker.Register(_bulletController);
@@ -155,7 +146,7 @@ namespace Controllers
         {
             _gameManager.SetState(GameStateType.Map);
             Cleanup();
-            _shipModel.ResetShipModel();
+            _shipController.ResetShipModel();
             _uiManager.GetScreen<WinScreen>().CloseScreen();
             _uiManager.GetScreen<GameScreen>().CloseScreen();
         }
@@ -164,7 +155,7 @@ namespace Controllers
         {
             _gameManager.SetState(GameStateType.Game);
             Cleanup();
-            _shipModel.ResetShipModel();
+            _shipController.ResetShipModel();
             _uiManager.GetScreen<WinScreen>().CloseScreen();
             
             var levelsData = _levelModel.GetLevelsData();
@@ -205,20 +196,9 @@ namespace Controllers
         {
             _gameManager.SetState(GameStateType.Game);
             Cleanup();
-            _shipModel.ResetShipModel();
+            _shipController.ResetShipModel();
             Show(_currentLevelId, _currentLevelVariables);
         }
-
-        private void InitShipController()
-        {
-            _shipController = new ShipController(_shipModel, _shipView, _bulletController);
-            _shipController.OnHealthChanged += OnHealthChanged;
-            _shipController.OnAsteroidHit += OnAsteroidHit;
-            _shipController.OnDeath += OnLose;
-            _shipController.OnDeactivate += OnShipDeactivated;
-            _ticker.Register(_shipController);
-        }
-        
         private void OnShipDeactivated()
         {
             _ticker.Unregister(_shipController);

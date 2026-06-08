@@ -11,7 +11,10 @@ namespace Core
 
         public void Register(ITickable tickable)
         {
-            _tickables.Add(tickable);
+            if (!_tickables.Contains(tickable))
+            {
+                _tickables.Add(tickable);
+            }
         }
 
         public void Unregister(ITickable tickable)
