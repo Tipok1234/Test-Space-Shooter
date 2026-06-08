@@ -61,19 +61,9 @@ namespace Controllers
         {
             switch (gameState)
             {
-                case GameStateType.Map:
-                    break;
                 case GameStateType.LevelSelect:
                     Show();
                     break;
-                case GameStateType.Game:
-                    break;
-                case GameStateType.Win:
-                    break;
-                case GameStateType.Lose:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
             }
         }
 

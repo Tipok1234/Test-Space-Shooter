@@ -158,8 +158,8 @@ namespace Controllers
         private void CalculateBounds()
         {
             var cam = Camera.main;
-            _minX = cam.ViewportToWorldPoint(new Vector2(0, 0)).x;
-            _maxX = cam.ViewportToWorldPoint(new Vector2(1, 0)).x;
+            _minX = cam.ViewportToWorldPoint(new Vector2(0, 0)).x + 0.5f;
+            _maxX = cam.ViewportToWorldPoint(new Vector2(1, 0)).x - 0.5f;
             _spawnY = cam.ViewportToWorldPoint(new Vector2(0, 1)).y + 1f;
             _despawnY = cam.ViewportToWorldPoint(new Vector2(0, 0)).y - 1f;
         }

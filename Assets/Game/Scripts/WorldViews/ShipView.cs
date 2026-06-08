@@ -8,7 +8,7 @@ namespace WorldViews
         public Transform BulletSpawnPoint => bulletSpawnPoint;
         
         [SerializeField] private Transform bulletSpawnPoint;
-        public Vector3 SpawnPosition => new Vector3(0, -4, 0);
+        [SerializeField] private Vector3 spawnPosition;
         
         public event Action<AsteroidView> OnHitAsteroid;
 
@@ -22,7 +22,7 @@ namespace WorldViews
         
         public void Activate()
         {
-            transform.position = SpawnPosition;
+            transform.position = spawnPosition;
             gameObject.SetActive(true);
         }
 

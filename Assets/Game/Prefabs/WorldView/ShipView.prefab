@@ -211,3 +211,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldViews.ShipView
   bulletSpawnPoint: {fileID: 8752705998730671653}
+  spawnPosition: {x: 0, y: -4, z: 0}

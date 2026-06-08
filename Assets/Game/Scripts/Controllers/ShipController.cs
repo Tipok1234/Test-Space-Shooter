@@ -11,7 +11,6 @@ namespace Controllers
     public class ShipController : ITickable
     {
         public int MaxHealth => _shipModel.MaxHealth;
-        
         public event Action OnDeath;
         public event Action<int> OnHealthChanged;
         public event Action<AsteroidView> OnAsteroidHit;
@@ -22,11 +21,6 @@ namespace Controllers
         private ShipModel _shipModel;
         private ShipView _shipView;
         private ShipConfig _shipConfig;
-
-        // private const float Speed = 5f;
-        // private const float ShipSizeX = 0.7f;
-        // private const float ShipSizeBottom = 0.7f;
-        // private const float ShipSizeTop = 1f;
         
         private Vector2 _minBounds;
         private Vector2 _maxBounds;

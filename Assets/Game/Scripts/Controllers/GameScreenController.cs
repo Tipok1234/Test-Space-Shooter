@@ -147,7 +147,7 @@ namespace Controllers
 
         private void OnNextLevel()
         {
-            _gameManager.SetState(GameStateType.Game);
+            _gameManager.SetState(GameStateType.Win);
             _asteroidController.Deactivate();
             _uiManager.GetScreen<WinScreen>().CloseScreen();
             
@@ -156,10 +156,9 @@ namespace Controllers
             int nextLevelId = (_currentLevelId + 1) % levelsData.Count;
     
             _levelModel.GenerateSeed(nextLevelId);
-            var nextVariables = _levelModel.GetVariables(nextLevelId);
-    
             _levelModel.SetCurrentLevel(nextLevelId);
-            Show(nextLevelId, nextVariables);
+            
+            _gameManager.SetState(GameStateType.Game);
         }
         
         private void OnAsteroidHit(AsteroidView asteroidView)

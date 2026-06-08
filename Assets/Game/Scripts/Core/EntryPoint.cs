@@ -41,6 +41,7 @@ namespace Core
             _container.Register(new GameSaves());
             _container.Register(new LevelVariablesGenerator());
             _container.Register(ticker);
+            _container.Register(new GameManager());
         }
 
         private void RegisterModels()
@@ -55,7 +56,6 @@ namespace Core
     
             _container.Register(levelModel);
             _container.Register(new ShipModel(shipConfig));
-            _container.Register(new GameManager());
         }
 
         private void RegisterControllers()
