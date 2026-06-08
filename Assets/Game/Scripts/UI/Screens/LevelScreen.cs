@@ -34,18 +34,18 @@ namespace Screens
         {
             levelNameText.text = $"Level {levelConfig.LevelId + 1}";
 
-            if (levelVariables == null)
-            {
-                asteroidCountText.text = "Asteroid Count: ???";
-                asteroidSpeedText.text = "Asteroid Speed: ???";
-                asteroidTypeText.text = "Asteroid Type: ???";
-            }
-            else
-            {
-                asteroidCountText.text = $"Asteroid Count: {levelVariables.AsteroidCount}";
-                asteroidSpeedText.text = $"Asteroid Speed: {levelVariables.AsteroidSpeed:F1}";
-                asteroidTypeText.text = $"Asteroid Type: {levelVariables.AsteroidType}";
-            }
+            SetVariablesText(
+                levelVariables?.AsteroidCount.ToString(),
+                levelVariables?.AsteroidSpeed.ToString("F1"),
+                levelVariables?.AsteroidType.ToString()
+            );
+        }
+
+        private void SetVariablesText(string count, string speed, string type)
+        {
+            asteroidCountText.text = $"Asteroid Count: {count ?? "???"}";
+            asteroidSpeedText.text = $"Asteroid Speed: {speed ?? "???"}";
+            asteroidTypeText.text = $"Asteroid Type: {type ?? "???"}";
         }
 
         private void OnPlay()

@@ -10,13 +10,13 @@ namespace WorldViews
         [SerializeField] private Transform bulletSpawnPoint;
         [SerializeField] private Vector3 spawnPosition;
         
-        public event Action<AsteroidView> OnHitAsteroid;
+        public event Action<AsteroidView> HitAsteroid;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent<AsteroidView>(out var asteroidView))
             {
-                OnHitAsteroid?.Invoke(asteroidView);
+                HitAsteroid?.Invoke(asteroidView);
             }
         }
         

@@ -31,9 +31,9 @@ namespace Controllers
         public GameController(UIManager uiManager, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController,ShipController shipController)
         {
             _shipController = shipController;
-            _shipController.OnHealthChanged += OnHealthChanged;
-            _shipController.OnAsteroidHit += OnAsteroidHit;
-            _shipController.OnDeath += OnLose;
+            _shipController.HealthChanged += OnHealthChanged;
+            _shipController.AsteroidHit += OnAsteroidHit;
+            _shipController.Death += OnLoseGame;
             
             _uiManager = uiManager;
             _bulletController = bulletController;
@@ -110,7 +110,7 @@ namespace Controllers
         private void SubscribeAsteroids()
         {
             _asteroidController.DestroyedAsteroid += OnAsteroidDestroyed;
-            _asteroidController.AllAsteroidsDestroyed += Win;
+            _asteroidController.AllAsteroidsDestroyed += OnWinGame;
         }
         
         private void OnAsteroidDestroyed()
@@ -119,7 +119,7 @@ namespace Controllers
             _uiManager.GetScreen<GameScreen>().UpdateScore(_currentScore);
         }
 
-        private void Win()
+        private void OnWinGame()
         {
             if (isGameOver)
                 return;
@@ -170,7 +170,7 @@ namespace Controllers
             _uiManager.GetScreen<GameScreen>().UpdateHealth(health);
         }
 
-        private void OnLose()
+        private void OnLoseGame()
         {
             _gameManager.SetState(GameStateType.Lose);
             
@@ -178,14 +178,14 @@ namespace Controllers
             _shipController.Deactivate();
             
             var loseScreen = _uiManager.GetScreen<LoseScreen>();
-            loseScreen.Init(OnRestart);
+            loseScreen.Init(OnRestartGame);
             loseScreen.OpenScreen();
             
             _ticker.Register(loseScreen);
             _ticker.Unregister(_shipController);
         }
         
-        private void OnRestart()
+        private void OnRestartGame()
         {
             _asteroidController.Deactivate();
             _gameManager.SetState(GameStateType.Game);
@@ -203,10 +203,10 @@ namespace Controllers
         {
             _gameManager.GameStateChanged -= OnGameStateChanged;
             _asteroidController.DestroyedAsteroid -= OnAsteroidDestroyed;
-            _asteroidController.AllAsteroidsDestroyed -= Win;
-            _shipController.OnHealthChanged -= OnHealthChanged;
-            _shipController.OnAsteroidHit -= OnAsteroidHit;
-            _shipController.OnDeath -= OnLose;
+            _asteroidController.AllAsteroidsDestroyed -= OnWinGame;
+            _shipController.HealthChanged -= OnHealthChanged;
+            _shipController.AsteroidHit -= OnAsteroidHit;
+            _shipController.Death -= OnLoseGame;
         }
     }
 }

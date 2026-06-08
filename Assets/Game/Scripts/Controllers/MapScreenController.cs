@@ -45,16 +45,6 @@ namespace Controllers
                 case GameStateType.Map:
                     Show();
                     break;
-                case GameStateType.LevelSelect:
-                    break;
-                case GameStateType.Game:
-                    break;
-                case GameStateType.Win:
-                    break;
-                case GameStateType.Lose:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
             }
         }
 

@@ -92,7 +92,6 @@ namespace Models
             var state = GetState(levelId);
             
             state.Status = LevelStatusType.Completed;
-            state.IsReadyForReplay = true;
             SaveState(state);
 
             UnlockNextLevel(levelId);
@@ -106,7 +105,6 @@ namespace Models
                 return;
 
             state.IsSeedGenerated = false;
-            state.IsReadyForReplay = false;
             state.Seed = 0;
 
             SaveState(state);

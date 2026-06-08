@@ -44,7 +44,7 @@ namespace Controllers
             _bulletController = bulletController;
 
             CalculateBounds();
-            _bulletController.OnBulletHitAsteroid += OnBulletHitAsteroid;
+            _bulletController.BulletHitAsteroid += BulletHitAsteroid;
         }
 
         public void Activate(LevelVariables levelVariables)
@@ -98,7 +98,7 @@ namespace Controllers
             _spawnTimer = 0f;
         }
 
-        private void OnBulletHitAsteroid(AsteroidView asteroid)
+        private void BulletHitAsteroid(AsteroidView asteroid)
         {
             DestroyAsteroid(asteroid);
 
@@ -166,7 +166,7 @@ namespace Controllers
 
         public void Dispose()
         {
-            _bulletController.OnBulletHitAsteroid -= OnBulletHitAsteroid;
+            _bulletController.BulletHitAsteroid -= BulletHitAsteroid;
         }
     }
 }

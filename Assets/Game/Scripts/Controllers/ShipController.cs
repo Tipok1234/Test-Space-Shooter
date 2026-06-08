@@ -11,9 +11,9 @@ namespace Controllers
     public class ShipController : ITickable
     {
         public int MaxHealth => _shipModel.MaxHealth;
-        public event Action OnDeath;
-        public event Action<int> OnHealthChanged;
-        public event Action<AsteroidView> OnAsteroidHit;
+        public event Action Death;
+        public event Action<int> HealthChanged;
+        public event Action<AsteroidView> AsteroidHit;
         
         private readonly BulletController _bulletController;
         private readonly ShipView _shipViewPrefab;
@@ -42,7 +42,7 @@ namespace Controllers
             if (_shipView == null)
             {
                 _shipView = UnityEngine.Object.Instantiate(_shipViewPrefab, Vector2.zero, Quaternion.identity);
-                _shipView.OnHitAsteroid += OnHitAsteroid;
+                _shipView.HitAsteroid += OnHitAsteroid;
             }
 
             _shipView.Activate();
@@ -65,8 +65,8 @@ namespace Controllers
             if (_shipView)
             {
                 _shipView.Activate();
-                _shipView.OnHitAsteroid -= OnHitAsteroid;
-                _shipView.OnHitAsteroid += OnHitAsteroid;
+                _shipView.HitAsteroid -= OnHitAsteroid;
+                _shipView.HitAsteroid += OnHitAsteroid;
             }
 
             SetEnabled(false);
@@ -74,20 +74,17 @@ namespace Controllers
         
         public void SetEnabled(bool enabled) => isEnabled = enabled;
         
-        public void Deactivate()
-        {
-            _shipView.Deactivate();
-        }
+        public void Deactivate() => _shipView.Deactivate();
         
         private void OnHitAsteroid(AsteroidView asteroidView)
         {
-            OnAsteroidHit?.Invoke(asteroidView);
+            AsteroidHit?.Invoke(asteroidView);
             _shipModel.TakeDamage();
-            OnHealthChanged?.Invoke(_shipModel.CurrentHealth);
+            HealthChanged?.Invoke(_shipModel.CurrentHealth);
 
             if (_shipModel.IsDead)
             {
-                OnDeath?.Invoke();
+                Death?.Invoke();
             }
         }
         

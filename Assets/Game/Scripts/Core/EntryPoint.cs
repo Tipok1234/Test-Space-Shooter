@@ -1,7 +1,6 @@
 using Config;
 using UnityEngine;
 using Configs;
-using Core;
 using Managers;
 using Models;
 using Controllers;

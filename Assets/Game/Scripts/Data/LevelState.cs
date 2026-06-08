@@ -12,6 +12,5 @@ namespace Data
         public LevelStatusType Status;
         
         public bool IsSeedGenerated;
-        public bool IsReadyForReplay;
     }
 }

@@ -5,7 +5,7 @@ namespace WorldViews
 {
     public class BulletView : MonoBehaviour
     {
-        public event Action<BulletView, AsteroidView> OnHitAsteroid;
+        public event Action<BulletView, AsteroidView> HitAsteroid;
 
         public void Launch(Vector3 position)
         {
@@ -22,7 +22,7 @@ namespace WorldViews
         {
             if (other.TryGetComponent<AsteroidView>(out var asteroidView))
             {
-                OnHitAsteroid?.Invoke(this, asteroidView);
+                HitAsteroid?.Invoke(this, asteroidView);
             }
         }
     }
