@@ -12,7 +12,7 @@ namespace Managers
         
         public LevelVariables Generate(int seed, LevelConfig levelConfig)
         {
-            var random = new System.Random(seed);
+            var random = new Random(seed);
     
             return new LevelVariables(
                 asteroidCount: random.Next(levelConfig.MinAsteroidCount, levelConfig.MaxAsteroidCount + 1),

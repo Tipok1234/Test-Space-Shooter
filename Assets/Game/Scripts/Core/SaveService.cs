@@ -1,24 +1,51 @@
+using Data;
 using UnityEngine;
+using System.Collections.Generic;
+using Configs;
+using Enums;
 
 namespace Core
 {
-    public class GameSaves
+    public class SaveService
     {
-        private static GameSaves _instance;
-
-        public static GameSaves Instance
+        private const string SaveKeyPrefix = "Level_State_Key";
+        
+        public void SaveLevelState(LevelState state)
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new GameSaves();
-                }
-
-                return _instance;
-            }
+            var json = JsonUtility.ToJson(state);
+            WriteData(SaveKeyPrefix + state.LevelId, json);
         }
 
+        public List<LevelState> LoadLevelStates(IEnumerable<LevelConfig> levelsData)
+        {
+            var levelStates = new List<LevelState>();
+
+            foreach (var levelData in levelsData)
+            {
+                var json = ReadData<string>(SaveKeyPrefix + levelData.LevelId);
+
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var state = JsonUtility.FromJson<LevelState>(json);
+                    levelStates.Add(state);
+                }
+                else
+                {
+                    var newState = new LevelState
+                    {
+                        LevelId = levelData.LevelId,
+                        Status = levelData.LevelId == 0 ? LevelStatusType.Unlocked : LevelStatusType.Locked,
+                        Seed = 0,
+                        IsSeedGenerated = false
+                    };
+                    levelStates.Add(newState);
+                    SaveLevelState(newState);
+                }
+            }
+
+            return levelStates;
+        }
+        
         public void WriteData<T>(string key, T data)
         {  
             if (typeof(T) == typeof(int))

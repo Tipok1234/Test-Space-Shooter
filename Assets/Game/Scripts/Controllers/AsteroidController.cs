@@ -4,7 +4,7 @@ using Managers;
 using Data;
 using System.Collections.Generic;
 using System.Linq;
-using WorldViews;
+using Views;
 using System;
 using Enums;
 
@@ -35,8 +35,8 @@ namespace Controllers
         
         private int _asteroidsSpawned;
         
-        private bool isActive;
-        private bool isWin;
+        private bool _isActive;
+        private bool _isWin;
 
         public AsteroidController(AsteroidPool asteroidPool, BulletController bulletController)
         {
@@ -50,13 +50,13 @@ namespace Controllers
         public void Activate(LevelVariables levelVariables)
         {
             _levelVariables = levelVariables;
-            isActive = true;
+            _isActive = true;
             ResetComponents();
         }
 
         public void Deactivate()
         {
-            isActive = false;
+            _isActive = false;
 
             foreach (var asteroid in _activeAsteroids)
             {
@@ -68,7 +68,7 @@ namespace Controllers
 
         public void Tick()
         {
-            if (!isActive)
+            if (!_isActive)
                 return;
 
             MoveAsteroids();
@@ -93,7 +93,7 @@ namespace Controllers
 
         private void ResetComponents()
         {
-            isWin = false;
+            _isWin = false;
             _asteroidsSpawned = 0;
             _spawnTimer = 0f;
         }
@@ -107,12 +107,12 @@ namespace Controllers
 
         private void CheckWin()
         {
-            if (isWin)
+            if (_isWin)
                 return;
     
             if (_asteroidsSpawned >= _levelVariables.AsteroidCount && _activeAsteroids.Count == 0)
             {
-                isWin = true;
+                _isWin = true;
                 AllAsteroidsDestroyed?.Invoke();
             }
         }
@@ -145,7 +145,7 @@ namespace Controllers
         {
             foreach (var asteroid in _activeAsteroids.Keys.ToList())
             {
-                asteroid.transform.position += Vector3.down * _levelVariables.AsteroidSpeed * Time.deltaTime;
+                asteroid.transform.position += Vector3.down * (_levelVariables.AsteroidSpeed * Time.deltaTime);
 
                 if (asteroid.transform.position.y < _despawnY)
                 {

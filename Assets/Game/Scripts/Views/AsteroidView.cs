@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace WorldViews
+namespace Views
 {
     public class AsteroidView : MonoBehaviour
     {

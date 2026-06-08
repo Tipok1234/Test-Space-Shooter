@@ -4,14 +4,13 @@ using Configs;
 using Managers;
 using Models;
 using Controllers;
-using UnityEngine.Serialization;
 
 namespace Core
 {
     [DefaultExecutionOrder(10)]
     public class EntryPoint : MonoBehaviour
     {
-        [FormerlySerializedAs("levelConfig")] [SerializeField] private LevelsConfig levelsConfig;
+        [SerializeField] private LevelsConfig levelsConfig;
         [SerializeField] private PrefabConfig prefabConfig;
         [SerializeField] private ShipConfig shipConfig;
         [SerializeField] private Ticker ticker;
@@ -37,7 +36,7 @@ namespace Core
 
         private void RegisterServices()
         {
-            _container.Register(new GameSaves());
+            _container.Register(new SaveService());
             _container.Register(new LevelVariablesGenerator());
             _container.Register(ticker);
             _container.Register(new GameManager());
@@ -47,7 +46,7 @@ namespace Core
         {
             var levelModel = new LevelModel(
                 levelsConfig.LevelsData,
-                _container.Resolve<GameSaves>(),
+                _container.Resolve<SaveService>(),
                 _container.Resolve<LevelVariablesGenerator>()
             );
     

@@ -2,7 +2,7 @@ using Core;
 using Managers;
 using Screens;
 using Models;
-using WorldViews;
+using Views;
 using System;
 using Data;
 using Enums;
@@ -16,17 +16,17 @@ namespace Controllers
         private readonly Ticker _ticker;
         private readonly GameManager _gameManager;
 
-        private ShipController _shipController;
-        private BulletController _bulletController;
-        private AsteroidController _asteroidController;
+        private readonly ShipController _shipController;
+        private readonly BulletController _bulletController;
+        private readonly AsteroidController _asteroidController;
         
         private const int ScoreForHitAsteroid = 10;
         
         private int _currentLevelId;
         private int _currentScore;
 
-        private bool isGameOver;
-        private bool isInitialized = false;
+        private bool _isGameOver;
+        private bool _isInitialized = false;
         
         public GameController(UIManager uiManager, Ticker ticker, LevelModel levelModel, GameManager gameManager, BulletController bulletController, AsteroidController asteroidController,ShipController shipController)
         {
@@ -46,14 +46,14 @@ namespace Controllers
 
         private void Show(int levelId, LevelVariables levelVariables)
         {
-            isGameOver = false;
+            _isGameOver = false;
             _currentLevelId = levelId;
             _currentScore = 0;
 
             var gameScreen = _uiManager.GetScreen<GameScreen>();
             gameScreen.OpenScreen();
             
-            if (isInitialized)
+            if (_isInitialized)
             {
                 ResetControllers();
                 SetupShip();
@@ -84,7 +84,7 @@ namespace Controllers
             _shipController.SpawnShip();
             RegistersControllers();
             SubscribeAsteroids();
-            isInitialized = true;
+            _isInitialized = true;
         }
 
         private void SetupShip()
@@ -121,7 +121,7 @@ namespace Controllers
 
         private void OnWinGame()
         {
-            if (isGameOver)
+            if (_isGameOver)
                 return;
     
             _shipController.Deactivate();
@@ -174,7 +174,7 @@ namespace Controllers
         {
             _gameManager.SetState(GameStateType.Lose);
             
-            isGameOver = true;
+            _isGameOver = true;
             _shipController.Deactivate();
             
             var loseScreen = _uiManager.GetScreen<LoseScreen>();

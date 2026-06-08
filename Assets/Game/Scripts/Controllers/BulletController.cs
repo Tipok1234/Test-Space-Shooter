@@ -1,7 +1,7 @@
 using UnityEngine;
 using Interfaces;
 using Managers;
-using WorldViews;
+using Views;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -50,7 +50,7 @@ namespace Controllers
         {
             foreach (var bullet in _activeBullets.Keys.ToList())
             {
-                bullet.transform.position += Vector3.up * BulletSpeed * Time.deltaTime;
+                bullet.transform.position += Vector3.up * (BulletSpeed * Time.deltaTime);
 
                 if (bullet.transform.position.y > _maxY)
                 {

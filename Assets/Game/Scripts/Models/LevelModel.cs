@@ -11,26 +11,27 @@ namespace Models
 {
     public class LevelModel
     {
+        private List<LevelState> _levelStates;
+        
         private readonly List<LevelConfig> _levelsData;
-        private readonly List<LevelState> _levelStates;
         private readonly LevelVariablesGenerator _generator;
-        private readonly GameSaves _gameSaves;
+        private readonly SaveService _saveService;
 
         private const string SaveKeyPrefix = "Level_State_Key";
 
         public int CurrentLevel {get; private set;}
         
-        public LevelModel(List<LevelConfig> levelsData, GameSaves gameSaves, LevelVariablesGenerator generator)
+        public LevelModel(List<LevelConfig> levelsData, SaveService saveService, LevelVariablesGenerator generator)
         {
             _levelsData = levelsData;
-            _gameSaves = gameSaves;
+            _saveService = saveService;
             _generator = generator;
             _levelStates = new List<LevelState>();
         }
         
         public void Init()
         {
-            LoadStates();
+            _levelStates = _saveService.LoadLevelStates(_levelsData);
         }
 
         public void SetCurrentLevel(int levelIndex)
@@ -81,10 +82,10 @@ namespace Models
         {
             var state = GetState(levelId);
 
-            state.Seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            state.Seed = Random.Range(int.MinValue, int.MaxValue);
             state.IsSeedGenerated = true;
 
-            SaveState(state);
+            _saveService.SaveLevelState(state);
         }
 
         public void CompleteLevel(int levelId)
@@ -92,7 +93,7 @@ namespace Models
             var state = GetState(levelId);
             
             state.Status = LevelStatusType.Completed;
-            SaveState(state);
+            _saveService.SaveLevelState(state);
 
             UnlockNextLevel(levelId);
         }
@@ -107,7 +108,7 @@ namespace Models
             state.IsSeedGenerated = false;
             state.Seed = 0;
 
-            SaveState(state);
+            _saveService.SaveLevelState(state);
         }
 
         private void UnlockNextLevel(int levelId)
@@ -121,39 +122,39 @@ namespace Models
                 return;
 
             nextState.Status = LevelStatusType.Unlocked;
-            SaveState(nextState);
+            _saveService.SaveLevelState(nextState);
         }
 
-        private void LoadStates()
-        {
-            foreach (var levelData in _levelsData)
-            {
-                var json = _gameSaves.ReadData<string>(SaveKeyPrefix + levelData.LevelId);
-
-                if (!string.IsNullOrEmpty(json))
-                {
-                    var state = JsonUtility.FromJson<LevelState>(json);
-                    _levelStates.Add(state);
-                }
-                else
-                {
-                    var newState = new LevelState
-                    {
-                        LevelId = levelData.LevelId,
-                        Status = levelData.LevelId == 0 ? LevelStatusType.Unlocked : LevelStatusType.Locked,
-                        Seed = 0,
-                        IsSeedGenerated = false
-                    };
-                    _levelStates.Add(newState);
-                    SaveState(newState);
-                }
-            }
-        }
-
-        private void SaveState(LevelState state)
-        {
-            var json = JsonUtility.ToJson(state);
-            _gameSaves.WriteData(SaveKeyPrefix + state.LevelId, json);
-        }
+        // private void LoadStates()
+        // {
+        //     foreach (var levelData in _levelsData)
+        //     {
+        //         var json = _gameSaves.ReadData<string>(SaveKeyPrefix + levelData.LevelId);
+        //
+        //         if (!string.IsNullOrEmpty(json))
+        //         {
+        //             var state = JsonUtility.FromJson<LevelState>(json);
+        //             _levelStates.Add(state);
+        //         }
+        //         else
+        //         {
+        //             var newState = new LevelState
+        //             {
+        //                 LevelId = levelData.LevelId,
+        //                 Status = levelData.LevelId == 0 ? LevelStatusType.Unlocked : LevelStatusType.Locked,
+        //                 Seed = 0,
+        //                 IsSeedGenerated = false
+        //             };
+        //             _levelStates.Add(newState);
+        //             SaveState(newState);
+        //         }
+        //     }
+        // }
+        //
+        // private void SaveState(LevelState state)
+        // {
+        //     var json = JsonUtility.ToJson(state);
+        //     _gameSaves.WriteData(SaveKeyPrefix + state.LevelId, json);
+        // }
     }
 }

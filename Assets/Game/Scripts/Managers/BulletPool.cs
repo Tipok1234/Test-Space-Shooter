@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using WorldViews;
+using Views;
 
 namespace Managers
 {

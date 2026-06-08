@@ -1,5 +1,5 @@
 using UnityEngine;
-using WorldViews;
+using Views;
 
 namespace Configs
 {

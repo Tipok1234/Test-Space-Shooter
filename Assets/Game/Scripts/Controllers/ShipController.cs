@@ -1,7 +1,7 @@
 using Interfaces;
 using Models;
 using UnityEngine;
-using WorldViews;
+using Views;
 using UnityEngine.InputSystem;
 using System;
 using Config;
@@ -18,14 +18,14 @@ namespace Controllers
         private readonly BulletController _bulletController;
         private readonly ShipView _shipViewPrefab;
         
-        private ShipModel _shipModel;
+        private readonly ShipModel _shipModel;
+        private readonly ShipConfig _shipConfig;
         private ShipView _shipView;
-        private ShipConfig _shipConfig;
         
         private Vector2 _minBounds;
         private Vector2 _maxBounds;
 
-        private bool isEnabled;
+        private bool _isEnabled;
 
         public ShipController(ShipModel shipModel, BulletController bulletController, ShipView shipView, ShipConfig shipConfig)
         {
@@ -51,7 +51,7 @@ namespace Controllers
 
         public void Tick()
         {
-            if (!isEnabled) 
+            if (!_isEnabled) 
                 return;
             
             Move();
@@ -72,7 +72,7 @@ namespace Controllers
             SetEnabled(false);
         }
         
-        public void SetEnabled(bool enabled) => isEnabled = enabled;
+        public void SetEnabled(bool enabled) => _isEnabled = enabled;
         
         public void Deactivate() => _shipView.Deactivate();
         
@@ -90,7 +90,7 @@ namespace Controllers
         
         private void HandleShoot()
         {
-            if (Keyboard.current.spaceKey.wasPressedThisFrame && isEnabled)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame && _isEnabled)
             {
                 _bulletController.Shoot(_shipView.BulletSpawnPoint.position);
             }

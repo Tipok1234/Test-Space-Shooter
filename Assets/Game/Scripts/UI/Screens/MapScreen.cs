@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Views;
+using UI.Views;
 using System;
 using Configs;
 using Data;

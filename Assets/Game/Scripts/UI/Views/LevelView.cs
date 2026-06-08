@@ -5,7 +5,7 @@ using Data;
 using Enums;
 using TMPro;
 
-namespace Views
+namespace UI.Views
 {
     public class LevelView : MonoBehaviour
     {
