@@ -5,12 +5,16 @@ namespace Config
     [CreateAssetMenu(fileName = "ShipConfig", menuName = "ShipConfig")]
     public class ShipConfig : ScriptableObject
     {
-        public int MaxHealth;
+        public int MaxHealth => maxHealth;
+        public float Speed => speed;
+        public float ShipSizeX => shipSizeX;
+        public float ShipSizeBottom => shipSizeBottom;
+        public float ShipSizeTop => shipSizeTop;
         
-        public float Speed;
-
-        public float ShipSizeX;
-        public float ShipSizeBottom;
-        public float ShipSizeTop;
+        [SerializeField] private int maxHealth;
+        [SerializeField] private float speed;
+        [SerializeField] private float shipSizeX;
+        [SerializeField] private float shipSizeBottom;
+        [SerializeField] private float shipSizeTop;
     }
 }

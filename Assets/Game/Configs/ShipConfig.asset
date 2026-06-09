@@ -17,3 +17,8 @@ MonoBehaviour:
   ShipSizeX: 0.7
   ShipSizeBottom: 0.7
   ShipSizeTop: 1
+  maxHealth: 3
+  speed: 5
+  shipSizeX: 0.7
+  shipSizeBottom: 0.7
+  shipSizeTop: 1

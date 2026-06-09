@@ -12,19 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3502a856b249ce14fa8320c230e32aa1, type: 3}
   m_Name: LevelConfig
   m_EditorClassIdentifier: Assembly-CSharp::Datas.LevelConfig
-  LevelsData:
-  - LevelId: 0
-    MinAsteroidCount: 10
-    MaxAsteroidCount: 15
-    MinAsteroidSpeed: 1
-    MaxAsteroidSpeed: 3
-  - LevelId: 1
-    MinAsteroidCount: 15
-    MaxAsteroidCount: 25
-    MinAsteroidSpeed: 2
-    MaxAsteroidSpeed: 4
-  - LevelId: 2
-    MinAsteroidCount: 25
-    MaxAsteroidCount: 45
-    MinAsteroidSpeed: 3
-    MaxAsteroidSpeed: 6
+  levelsData:
+  - levelId: 0
+    minAsteroidCount: 10
+    maxAsteroidCount: 15
+    minAsteroidSpeed: 1
+    maxAsteroidSpeed: 3
+  - levelId: 1
+    minAsteroidCount: 20
+    maxAsteroidCount: 30
+    minAsteroidSpeed: 2
+    maxAsteroidSpeed: 4
+  - levelId: 2
+    minAsteroidCount: 30
+    maxAsteroidCount: 45
+    minAsteroidSpeed: 3
+    maxAsteroidSpeed: 5
